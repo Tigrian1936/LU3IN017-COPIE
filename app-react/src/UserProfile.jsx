@@ -18,12 +18,16 @@ function UserProfile(props){
   const [dataLoadingState, setLoadingState] = useState(LoadingStates.IDLE);
 
   const getUserInfosFromDB = () =>{
+    if(props.id === 0){
+        setLoadingState(LoadingStates.LOADED);
+        setUser({username: "User Deleted", id: 0})
+        return;
+    }
     axios.get(`${GetUrl()}/users/${props.id}`)
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       setMessages(response.data.messages);
       setUser(response.data.user)
-      console.log(response.data.user);
     })
     .catch((error) => {
       setLoadingState(LoadingStates.IDLE);

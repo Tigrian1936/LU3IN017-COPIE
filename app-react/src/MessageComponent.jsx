@@ -22,8 +22,13 @@ function MessageComponent (props){
       setUser({username: user.username, id: user._id})  
     })
     .catch((error) => {
-      setLoadingState(LoadingStates.IDLE);
-      console.log(error);
+      if(error.response === "User not found") {
+        setUser({username: "User Deleted", id: 0})
+      }
+      else{
+        setLoadingState(LoadingStates.IDLE);
+        console.log(error);
+      }
     });
   }
 
@@ -32,7 +37,12 @@ function MessageComponent (props){
     setLoadingState(LoadingStates.LOADING)
     getUserInfosFromDB();}, []
   );
-  if(dataLoadingState === LoadingStates.LOADING || dataLoadingState === LoadingStates.IDLE){
+  if(dataLoadingState === LoadingStates.IDLE){
+    return (<div className="message">
+      <p>Error while loading user data</p>
+    </div>)
+  }
+  if(dataLoadingState === LoadingStates.LOADING){
     return (<div className="message">
       <p>Loading... </p>
     </div>)
