@@ -22,8 +22,8 @@ function MessageComponent (props){
       setUser({username: user.username, id: user._id})  
     })
     .catch((error) => {
-      if(error.response === "User not found") {
-        setUser({username: "User Deleted", id: 0})
+      if(error.response.message === "User not found") {
+        setUser({username: "User Deleted", id: -1})
       }
       else{
         setLoadingState(LoadingStates.IDLE);
