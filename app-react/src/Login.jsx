@@ -5,7 +5,7 @@ import GetUrl from "./Url.jsx";
 function Login (props) {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
-
+    const [approvedMessage, setApprovedMessage] = useState(false);
     const getLogin = (evt) => {setLogin(evt.target.value)}
     const getPassword = (evt) => {setPassword(evt.target.value)}
 
@@ -18,7 +18,17 @@ function Login (props) {
         .then((response) =>{
             if(response.status === 200)
             {
-                props.logIn({id : response.data._id, username:login, photo : response.data.photo, registerDate : response.data.registerDate, is_admin : false})
+                if(response.data.approved === false){
+                    setApprovedMessage(true)
+                }else {
+                    props.logIn({
+                        id: response.data._id,
+                        username: login,
+                        photo: response.data.photo,
+                        registerDate: response.data.registerDate,
+                        is_admin: false
+                    })
+                }
             }
             else{
                 console.log(response.message);
@@ -34,6 +44,7 @@ function Login (props) {
         <label htmlFor="login">Login</label><input id="login" onChange={getLogin}/>
         <label htmlFor="mdp">Mot de passe</label><input type="password" id="mdp" onChange={getPassword}/>
         <button type="submit" onClick={handleSubmit}>Log In</button><button type="reset">Annuler</button>
+        {approvedMessage ? <p>User account waiting admin for approval</p> : <p></p>}
     </div>
     );
 }
