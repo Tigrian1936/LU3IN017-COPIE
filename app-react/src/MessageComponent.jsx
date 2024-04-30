@@ -23,7 +23,7 @@ function MessageComponent (props){
       setUser({username: user.username, id: user._id})  
     })
     .catch((error) => {
-      if(error.response.message === "User not found") {
+      if(error.response === "User not found") {
         console.log("BUGGGGG")
         setUser({username: "User Deleted", id: -1})
       }
