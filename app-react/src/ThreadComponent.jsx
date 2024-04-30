@@ -24,8 +24,7 @@ function ThreadComponent(props){
     axios.get(`${GetUrl()}/threads/${props.id}`).then((response) => {
       if (response.status === 200) {
         setLoading(LoadingStates.LOADED);
-        setMessages(response.data.messages)
-        console.log(response.data.messages);
+        setMessages(response.data.messages);
       }
       else {
         console.log(response.message);

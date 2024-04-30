@@ -14,6 +14,7 @@ function MessageComponent (props){
 
   const id = props.user_id;
   const getUserInfosFromDB = () =>{
+    
     console.log(props.user_id);
     axios.get(`${GetUrl()}/users/${id}`)
     .then((response) => {
@@ -23,6 +24,7 @@ function MessageComponent (props){
     })
     .catch((error) => {
       if(error.response.message === "User not found") {
+        console.log("BUGGGGG")
         setUser({username: "User Deleted", id: -1})
       }
       else{
