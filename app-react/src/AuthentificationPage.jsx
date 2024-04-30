@@ -16,7 +16,7 @@ function AuthentificationPage (props) {
     if(signPage){
         return (
             <div>
-                <Signin signIn =  {props.SignIn}/>
+                <Signin signIn/>
                 <button type="submit" onClick={returnToLogIn}> Go back</button>
             </div>
         );

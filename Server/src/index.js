@@ -84,6 +84,14 @@ app.post('/authentication/login', async (req, res)=>{
     }
 });
 
+app.post('/users', async (req, res)=>{
+  api.CreateUser(req.db, req.body.username, req.body.password).then((user_id) => {
+    res.status(200).json({user_id : user_id.insertedId});
+  })
+  .catch(reason => {
+    res.status(400).json({message : reason.message});
+  });
+});
 
 // start express server on port 5000
 app.listen(5000, () => {

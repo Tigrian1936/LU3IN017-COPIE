@@ -13,6 +13,21 @@ async function GetAllThreads(db)
     return await result.toArray();
 }
 
+async function CreateUser(db, username, password) {
+    const query = {username : username};
+    const options = {projection: {_id : 1}};
+    const data = await db.collection('Users').findOne(query, options);
+    return new Promise((resolve, reject) => {
+        if(data != null){
+            reject("User already exists");
+        }
+        else {
+            const user = {username : username, password : password, register_date : Date.now(), is_admin : false, approved : false};
+            const user_id = db.collection('Users').insertOne(user);
+            resolve(user_id);
+        }
+    });
+}
 async function GetThreadMessages(db, thread_id){
     return new Promise((resolve, reject) => {
         const query = { thread_id : convertToObjectId(thread_id)};
@@ -153,4 +168,4 @@ async function GetThreadRecommendation(db, queryType, count){
     return null;
 }
 
-module.exports = {GetAllThreads, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadRecommendation, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
+module.exports = {GetAllThreads, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadRecommendation, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
