@@ -20,11 +20,14 @@ function MessageComponent (props){
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       const user = response.data.user;
+      if(user === null){
+        setUser({username: "User Deleted", id: -1})
+        return;
+      }
       setUser({username: user.username, id: user._id})  
     })
     .catch((error) => {
-      if(error.response.message === "User not found") {
-        console.log("BUGGGGG")
+      if(error.response === "User not found") {
         setUser({username: "User Deleted", id: -1})
       }
       else{
