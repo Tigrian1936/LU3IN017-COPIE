@@ -33,16 +33,22 @@ function Signin (props) {
         }
 
     }
+    
+    if(waitingApproval){
+        return (
+            <div>
+                <p>Waiting for approval</p>
+            </div>
+        );
+    }
     return (
         <div>
-            {waitingApproval} ? <p>Waiting for approval</p> :(<label htmlFor="signin_login">Login</label><input
-            id="signin_login"/>
+            <label htmlFor="signin_login">Login</label><input id="signin_login"/>
             <label htmlFor="signin_mdp1">Password</label><input type="password" id="signin_mdp1"/>
             <label htmlFor="signin_mdp2">Password (2)</label><input type="password" id="signin_mdp2"/>
-            {passOK ? <p></p> : <p style={{color: "red"}}>Error: passwordMismatch</p>}
-            <button onClick={submissionHandler}>Sign In</button>
+            <button onClick={submissionHandler}>Sign In0</button>
             <button type="reset">Reset</button>
-            )
+            {passOK ? <p></p> : <p style={{color: "red"}}>Error: passwordMismatch</p>}
         </div>
     );
 
