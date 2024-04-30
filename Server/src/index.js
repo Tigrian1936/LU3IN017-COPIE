@@ -75,7 +75,7 @@ app.get('/threads', async (req, res)=>{
 app.post('/authentication/login', async (req, res)=>{
     const collection = req.db.collection('Users');
     const query = {username: req.body.login, password: req.body.password};
-    const options = {projection: {_id: 1, username: 1, password: 1, logo : 1}};
+    const options = {projection: {_id: 1, username: 1, password: 1, register_date : 1, is_admin : 1, approved: 1}};
     const result = await collection.findOne(query, options);
     if(result != null){
       res.status(200).json(result);
@@ -85,7 +85,7 @@ app.post('/authentication/login', async (req, res)=>{
 });
 
 app.post('/users', async (req, res)=>{
-  api.CreateUser(req.db, req.body.username, req.body.password).then((user_id) => {
+  api.CreateUser(req.db, req.body.login, req.body.password).then((user_id) => {
     res.status(200).json({user_id : user_id.insertedId});
   })
   .catch(reason => {
