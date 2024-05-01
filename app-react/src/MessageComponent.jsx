@@ -29,7 +29,7 @@ function MessageComponent (props){
         return;
       }
       console.log(user._id)
-      setUser({username: user.username, id: user._id})  
+      setUser({username: user.username, id: user._id, approved: user.approved, is_admin: user.is_admin})
     })
     .catch((error) => {
       if(error.response === "User not found") {
