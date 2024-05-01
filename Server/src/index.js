@@ -66,6 +66,14 @@ app.get('/users/:user_id', async (req, res)=>{
   })
 });
 
+app.put('/users/:user_id', async (req, res)=>{
+  api.PromoteUser(req.db, req.params.user_id).then(() => {
+    res.status(200).json({message : "User promoted"});
+  }).catch(reason => {
+    res.status(400).json({message : reason.message});
+  });
+});
+
 
 app.get('/threads', async (req, res)=>{
   api.GetThreadByQuery(req.db, req.query.queryType, req.query.count).then((threads)=>{

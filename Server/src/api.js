@@ -95,6 +95,18 @@ async function GetUser(db, user_id){
         }
     });
 }
+
+async function PromoteUser(db, user_id){
+    return new Promise((resolve, reject) => {
+        const query = {_id: convertToObjectId(user_id)};
+        const update = {$set: {is_admin: true}};
+        db.collection('Users').updateOne(query, update).then(() => {
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
 async function GetUserMessages(db, user_id){
     return new Promise((resolve, reject) => {
         const query2 = {user_id : convertToObjectId(user_id)};
@@ -205,4 +217,4 @@ async function GetThreadByQuery(db, queryType, count){
     return null;
 }
 
-module.exports = {GetAllThreads, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
+module.exports = {GetAllThreads, PromoteUser, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
