@@ -24,6 +24,7 @@ function MessageComponent (props){
         setUser({username: "User Deleted", id: -1})
         return;
       }
+      console.log(user._id)
       setUser({username: user.username, id: user._id})  
     })
     .catch((error) => {

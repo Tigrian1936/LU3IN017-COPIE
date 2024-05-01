@@ -40,13 +40,21 @@ function UserProfile(props){
     setLoadingState(LoadingStates.LOADING)
     getUserInfosFromDB();}, []
   );
-  if(dataLoadingState === LoadingStates.LOADING || dataLoadingState === LoadingStates.IDLE){
+  if(dataLoadingState === LoadingStates.LOADING){
     return (<div className="user-profile">
       <div className="profile-details">
         <label className="username">Loading... </label> 
       </div>  
     </div>)
   }
+  if(dataLoadingState === LoadingStates.IDLE){
+    return (<div className="user-profile">
+      <div className="profile-details">
+        <label className="username">Error while loading data </label> 
+      </div>  
+    </div>)
+  }
+  
   return (
   <div className="user-profile">
   {
