@@ -17,7 +17,8 @@ function ForumPage (props) {
   }
 
   const logOut = (evt)=>{
-    setConnectedUser(null)
+    setConnectedUser(null);
+    setDisplay(DisplayTypes.MAINPAGE);
   }
 
   const [currentBodyDisplay,setDisplay] = useState(DisplayTypes.MAINPAGE);
