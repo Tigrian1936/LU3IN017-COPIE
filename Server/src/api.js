@@ -16,7 +16,7 @@ async function GetAllThreads(db)
     return await result.toArray();
 }
 
-async function CreateUser(db, username, password) {
+async function CreateUser(db, username, password, admin) {
     const query = {username : username};
     const options = {projection: {_id : 1}};
     const data = await db.collection('Users').findOne(query, options);
@@ -25,7 +25,7 @@ async function CreateUser(db, username, password) {
             reject("User already exists");
         }
         else {
-            const user = {username : username, password : password, register_date : Date.now(), is_admin : false, approved : false};
+            const user = {username : username, password : password, register_date : Date.now(), is_admin : admin, approved : false};
             const user_id = db.collection('Users').insertOne(user);
             resolve(user_id);
         }

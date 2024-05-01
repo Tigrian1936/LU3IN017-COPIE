@@ -104,7 +104,7 @@ app.get('/users', async (req, res)=>{
 });
 
 app.post('/users', async (req, res)=>{
-  api.CreateUser(req.db, req.body.login, req.body.password).then((user_id) => {
+  api.CreateUser(req.db, req.body.login, req.body.password, req.body.admin).then((user_id) => {
     res.status(200).json({user_id : user_id.insertedId});
   })
   .catch(reason => {
