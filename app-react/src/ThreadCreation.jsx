@@ -10,9 +10,9 @@ function ThreadCreation(props) {
     const user = useContext(UserContext);
     const createThread = () => {
         axios.post(`${GetUrl()}/threads`, {
-            original_poster_id: props.user.id,
+            original_poster_id: user.id,
             title: document.getElementById("title").value,
-            is_admin: props.user.is_admin && document.getElementById("admin").checked
+            is_admin: user.is_admin && document.getElementById("admin").checked
         })
             .then((response) => {
                 if (response.status === 200) {
