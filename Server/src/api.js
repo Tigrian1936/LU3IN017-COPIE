@@ -25,7 +25,7 @@ async function CreateUser(db, username, password, admin) {
             reject("User already exists");
         }
         else {
-            const user = {username : username, password : password, register_date : Date.now(), is_admin : admin, approved : false};
+            const user = {username : username, password : password, register_date : Date.now(), is_admin : admin, approved : admin};
             const user_id = db.collection('Users').insertOne(user);
             resolve(user_id);
         }
