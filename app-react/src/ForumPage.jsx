@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import photo from "./assets/react.svg"; 
 import AuthentificationPage from './AuthentificationPage';
 import ConnectedUserRedirection from './ConnectedUserRedirection';
-import { ThreadRecommendation, RecommandationQueryType } from './ThreadRecommendation';
+import { ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
 import { ForumBody, DisplayTypes } from './ForumBody';
-
+import { UserContext } from './UserContext';
 
 function ForumPage (props) {
   
@@ -30,27 +30,33 @@ function ForumPage (props) {
   if(user != null){
     return (
       <div className="forum-page">
-         <header>
-          <div id="logo">
-              <img src={photo} alt = "logo du site" height="75"/>
-          </div>
-          <div id="search">
-            
-          </div>
-          <div id="connect">
-              <ConnectedUserRedirection logOut = {logOut} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId} user = {user}/>
-          </div>
-         </header>
-         <div>
-          <div className="threads-recommandation">  
-            <ThreadRecommendation user={user} query={RecommandationQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
-            <button onClick={createThreadDisplay}>Create Thread</button>
-          </div>
-          <ForumBody user = {user} display = {currentBodyDisplay} setDisplay = {setDisplay} displayDataId = {displayDataId} setDisplayDataId = {setDisplayDataId}/>
-        </div>
+          <UserContext.Provider value={user}>
+              <header>
+                  <div id="logo">
+                      <img src={photo} alt="logo du site" height="75"/>
+                  </div>
+                  <div id="search">
+
+                  </div>
+                  <div id="connect">
+                      <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
+                                                setDisplayDataId={setDisplayDataId}/>
+                      {user.is_admin ? <button onClick={evt => setDisplay(DisplayTypes.ADMIN)}>Admin</button> : null}
+                  </div>
+              </header>
+              <div>
+                  <div className="threads-recommandation">
+                      <ThreadRecommendation query={ThreadsQueryType.MOSTRECENT} setDisplay={setDisplay}
+                                            setDisplayDataId={setDisplayDataId}/>
+                      <button onClick={createThreadDisplay}>Create Thread</button>
+                  </div>
+                  <ForumBody display={currentBodyDisplay} setDisplay={setDisplay}
+                             displayDataId={displayDataId} setDisplayDataId={setDisplayDataId}/>
+              </div>
+          </UserContext.Provider>
       </div>);
   }
-  return(<AuthentificationPage logIn = {logIn}/>)
+    return (<AuthentificationPage logIn={logIn}/>)
 
 }
 

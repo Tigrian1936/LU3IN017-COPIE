@@ -8,6 +8,9 @@ app.use(cors());
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
 
+
+
+
 client
 .connect()
     .then(() => {
@@ -65,7 +68,7 @@ app.get('/users/:user_id', async (req, res)=>{
 
 
 app.get('/threads', async (req, res)=>{
-  api.GetThreadRecommendation(req.db, req.query.queryType, req.query.count).then((threads)=>{
+  api.GetThreadByQuery(req.db, req.query.queryType, req.query.count).then((threads)=>{
     res.status(200).json(threads);
   }).catch(reason =>{
     res.status(400).json({message : reason.message});
@@ -82,6 +85,22 @@ app.post('/authentication/login', async (req, res)=>{
     } else {
         res.status(401).json({message: "Unknown user"});
     }
+});
+
+app.post('/users/:user_id', async (req, res)=>{
+  api.ApproveUser(req.db, req.params.user_id).then(() => {
+    res.status(200).json({message : "User approved"});
+  }).catch(reason => {
+    res.status(400).json({message : reason.message});
+  });
+});
+
+app.get('/users', async (req, res)=>{
+    api.GetUsersByQuery(req.db, req.query.queryType).then((users)=>{
+        res.status(200).json(users);
+    }).catch(reason =>{
+        res.status(400).json({message : reason.message});
+    })
 });
 
 app.post('/users', async (req, res)=>{

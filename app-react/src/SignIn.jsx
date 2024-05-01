@@ -46,7 +46,7 @@ function Signin (props) {
             <label htmlFor="signin_login">Login</label><input id="signin_login"/>
             <label htmlFor="signin_mdp1">Password</label><input type="password" id="signin_mdp1"/>
             <label htmlFor="signin_mdp2">Password (2)</label><input type="password" id="signin_mdp2"/>
-            <button onClick={submissionHandler}>Sign In0</button>
+            <button onClick={submissionHandler}>Sign In</button>
             <button type="reset">Reset</button>
             {passOK ? <p></p> : <p style={{color: "red"}}>Error: passwordMismatch</p>}
         </div>

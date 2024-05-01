@@ -49,7 +49,7 @@ function ThreadComponent(props){
   return (
   <div className="thread">
     <MessageList messages = {messages} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
-    <ThreadMessageForm user = {props.user} id = {props.id} setUpToDate = {setUpToDate}/>
+    <ThreadMessageForm id = {props.id} setUpToDate = {setUpToDate}/>
   </div>);
 }
 

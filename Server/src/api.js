@@ -1,5 +1,8 @@
 const { ObjectId } = require('mongodb');
 
+const UsersQueryType = {
+    NONAPPROVED: "get-non-approved-users",
+};
 function convertToObjectId(id){
     if(id instanceof ObjectId){return id;}
     return new ObjectId(id);
@@ -105,6 +108,19 @@ async function GetUserMessages(db, user_id){
         }
     });
 }
+
+async function ApproveUser(db, user_id){
+    return new Promise((resolve, reject) => {
+        const query = {_id: convertToObjectId(user_id)};
+        const update = {$set: {approved: true}};
+        db.collection('Users').updateOne(query, update).then(() => {
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
 async function CreateServerMessage(db, thread_id, user_id, title, is_admin){
     return new Promise((resolve, reject) => {
         const query = {_id  : user_id};
@@ -144,7 +160,28 @@ async function GetThreadByTitle(db, title){
     return await result.toArray();
 }
 
+async function GetNonApprovedUsers(db){
+    return new Promise((resolve, reject) => {
+        const query = {approved : false};
+        const options = {projection: {_id : 1, username : 1}};
+        const users = db.collection('Users').find(query, options).toArray();
+        if(users != null){
+            resolve(users);
+        }
+        else {
+            reject("No non-approved users found");
+        }
+    });
+}
 
+async function GetUsersByQuery(db, queryType, count){
+    switch(queryType){
+        case UsersQueryType.NONAPPROVED:
+            return await GetNonApprovedUsers(db);
+    }
+    console.log('Unknown query type');
+    return null;
+}
 async function GetThreadById(db, thread_id){
     const query = {_id: thread_id};
     const options = {projection: {_id : 0, original_poster_id : 1,  creation_date : 1, title : 1, is_admin : 1}};
@@ -159,7 +196,7 @@ async function GetAllThreadsOfUser(db, user_id){
     return await result.toArray();
 }
 
-async function GetThreadRecommendation(db, queryType, count){
+async function GetThreadByQuery(db, queryType, count){
     switch(queryType){
         case "By-most-recent":
             return await GetFirstNThreadsByDate(db, count);
@@ -168,4 +205,4 @@ async function GetThreadRecommendation(db, queryType, count){
     return null;
 }
 
-module.exports = {GetAllThreads, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadRecommendation, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
+module.exports = {GetAllThreads, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};

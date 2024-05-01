@@ -4,13 +4,14 @@ import { useState } from 'react';
 import UserProfile from './UserProfile';
 import ThreadCreation from './ThreadCreation';
 import axios from 'axios';
-import {ThreadRecommendation, RecommandationQueryType } from './ThreadRecommendation';
-
+import {ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
+import AdminUserApproval from './AdminUserApproval';
 const DisplayTypes = {
   MAINPAGE: "MainPage",
   THREAD: "Thread",
   PROFILE: "Profile",
   CREATE_THREAD: "CreateThread",
+  ADMIN : ""
 };
 function ForumBody (props) {
   const user = props.user;
@@ -22,19 +23,22 @@ function ForumBody (props) {
   switch(display){
     case DisplayTypes.THREAD: 
       return (<div className="thread-display-page">
-        <ThreadComponent user = {user} id={data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        <ThreadComponent id={data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
       </div>);
     case DisplayTypes.PROFILE:
       return (<div className="profile-display-page">
-        <UserProfile user = {user} id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        <UserProfile id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
       </div>);
     case DisplayTypes.CREATE_THREAD:
       return(<div className = "thread-creation-page">
-        <ThreadCreation user = {user} id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        <ThreadCreation id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
       </div>);
+    case DisplayTypes.ADMIN:
+        return (<div className="admin-page">
+            <AdminUserApproval setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        </div>);
     case DisplayTypes.MAINPAGE: default:
-        <ThreadRecommendation user = {user} query = {RecommandationQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
-      break;
+       return (<ThreadRecommendation query = {ThreadsQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>);
   }
 }
 
