@@ -16,8 +16,8 @@ function UserList(props) {
     return (
         <div>
             <h1>Users</h1>
-            {users.map(user => (
-                <ClickableUserProfile key={user.id} user={user} switchToProfile={SwitchToProfile}/>
+            {users.map((user, index) => (
+                <ClickableUserProfile key={index} user={user} switchToProfile={SwitchToProfile}/>
             ))}
             
         </div>
