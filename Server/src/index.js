@@ -83,6 +83,14 @@ app.get('/threads', async (req, res)=>{
   })
 });
 
+app.delete('/users/:user_id', async (req, res)=>{
+  api.DeleteUser(req.db, req.params.user_id).then(() => {
+    res.status(200).json({message : "User deleted"});
+  }).catch(reason => {
+    res.status(400).json({message : reason.message});
+  });
+});
+
 app.post('/authentication/login', async (req, res)=>{
     const collection = req.db.collection('Users');
     const query = {username: req.body.login, password: req.body.password};

@@ -194,6 +194,14 @@ async function GetUsersByQuery(db, queryType, count){
     console.log('Unknown query type');
     return null;
 }
+async function DeleteUser(db, user_id){
+    return new Promise((resolve, reject) => {
+        const query = {_id: convertToObjectId(user_id)};
+        db.collection('Users').deleteOne(query).then(() => {
+            resolve();
+        }
+        ).catch(() => {reject()});
+    });}
 async function GetThreadById(db, thread_id){
     const query = {_id: thread_id};
     const options = {projection: {_id : 0, original_poster_id : 1,  creation_date : 1, title : 1, is_admin : 1}};
@@ -217,4 +225,4 @@ async function GetThreadByQuery(db, queryType, count){
     return null;
 }
 
-module.exports = {GetAllThreads, PromoteUser, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
+module.exports = {GetAllThreads, DeleteUser, PromoteUser, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
