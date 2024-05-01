@@ -24,9 +24,8 @@ function Login (props) {
                     props.logIn({
                         id: response.data._id,
                         username: login,
-                        photo: response.data.photo,
-                        registerDate: response.data.registerDate,
-                        is_admin: false
+                        register_Date: response.data.register_Date,
+                        is_admin: response.data.is_admin
                     })
                 }
             }
