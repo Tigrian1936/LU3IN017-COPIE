@@ -15,7 +15,11 @@ function MessageComponent (props){
 
   const id = props.user_id;
   const getUserInfosFromDB = () =>{
-    console.log(props.user_id);
+    if (id === 0) {
+      setUser({username: "Server", id: 0})
+      setLoadingState(LoadingStates.LOADED);
+      return;
+    }
     axios.get(`${GetUrl()}/users/${id}`)
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
