@@ -41,7 +41,6 @@ function ForumPage (props) {
                   <div id="connect">
                       <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
                                                 setDisplayDataId={setDisplayDataId}/>
-                      {user.is_admin ? <button onClick={evt => setDisplay(DisplayTypes.ADMIN)}>Admin</button> : null}
                   </div>
               </header>
               <div>

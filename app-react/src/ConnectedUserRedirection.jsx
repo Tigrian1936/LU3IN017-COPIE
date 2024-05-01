@@ -17,6 +17,7 @@ function ConnectedUserRedirection (props) {
     return (
         <div>
             <ClickableUserProfile user = {user} switchToProfile  = {SwitchToProfile}/>
+            {user.is_admin ? <button onClick={evt => setDisplay(DisplayTypes.ADMIN)}>Admin</button> : null}
             <Logout logOut = {props.logOut}/>
         </div>
     );
