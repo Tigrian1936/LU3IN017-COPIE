@@ -85,7 +85,7 @@ async function CreateMessage(db, thread_id, user_id, text){
 async function GetUser(db, user_id){
     return new Promise((resolve, reject) => {
         const query = {_id  : convertToObjectId(user_id)};
-        const options = {projection: {_id : 1, username : 1, logo : 1}};
+        const options = {projection: {_id : 1, username : 1, register_date : 1, is_admin : 1, approved : 1}};
         const user = db.collection('Users').findOne(query, options);
         if(user != null){
             resolve(user);
