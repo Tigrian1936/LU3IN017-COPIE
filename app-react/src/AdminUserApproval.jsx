@@ -29,6 +29,7 @@ function AdminUserApproval(props) {
         if(!user.is_admin){return null;}
         axios.get(`${GetUrl()}/users`,{params: { queryType : UsersQueryType.NONAPPROVED}}).then((response) => {
             if (response.status === 200) {
+                console.log(response.data);
                 setLoadingData(LoadingStates.LOADED);
                 setUsersToApprove(response.data);
             }
