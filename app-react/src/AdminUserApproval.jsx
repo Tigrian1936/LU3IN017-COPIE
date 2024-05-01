@@ -1,5 +1,4 @@
 import GetUrl from "./Url.jsx";
-import ThreadList from "./ThreadList.jsx";
 import axios from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';

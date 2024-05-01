@@ -1,7 +1,6 @@
 import ClickableUserProfile from "./ClickableUserProfile.jsx";
 import {DisplayTypes} from "./ForumBody.jsx";
-import React, { useContext } from 'react';
-import { UserContext } from './UserContext';
+import React from 'react';
 
 function UserList(props) {
     const users = props.users;
