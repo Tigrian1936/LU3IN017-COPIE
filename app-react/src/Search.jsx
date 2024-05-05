@@ -1,14 +1,7 @@
 import React from 'react';
-const SearchReturnType = {
-    THREAD: "Thread",
-    USER: "User",
-    MESSAGE: "Message",
-};
+import {SearchReturnType} from "./SearchReturnType.jsx";
+import {SearchQueryType} from "./SearchQueryType.jsx";
 
-const SearchQueryType = {
-    TEXT: "Text",
-    DATE: "Date"
-}
 function Search(props) {
     const [returnType, setReturnType] = React.useState(SearchReturnType.THREAD);
     const [options, setOptions] = React.useState([]);
@@ -16,7 +9,13 @@ function Search(props) {
     const addQuery = () => {
         setOptions([...options, {by :SearchReturnType.THREAD,  type: SearchQueryType.TEXT, value: "" }]);
     }
-
+    
+    const search = () => {
+        props.setDisplay(DisplayTypes.SEARCH);
+        props.setDisplayDataId({returnType: returnType, options: options});
+    }
+        
+    
     return (
         <div>
             <div>
@@ -39,7 +38,9 @@ function Search(props) {
                                     <option value={SearchQueryType.TEXT}>Text</option>
                                     <option value={SearchQueryType.DATE}>Date</option>
                                 </select>
-                                <input type={options[index].type === SearchQueryType.DATE ? 'date':'text'} onChange={evt => setOptions([...options.slice(0, index), { type: options[index].value , value: evt.target.value}, ...options.slice(index + 1, options.length)])}></input>
+                                <input type={options[index].type === SearchQueryType.DATE ? 'date':'text'} onChange={evt => setOptions([...options.slice(0, index), { type: options[index].value , value: {from : evt.target.value, up_to : options[index].value.up_to}}, ...options.slice(index + 1, options.length)])}>From :</input>
+                                {options[index].type === SearchQueryType.DATE ? <input type="date" onChange={evt => setOptions([...options.slice(0, index), { type: options[index].value , value: {from : options[index].value.from, up_to : evt.target.value}}, ...options.slice(index + 1, options.length)])}>To : </input> : null}
+                                <button onClick={evt => setOptions([...options.slice(0, index), ...options.slice(index + 1, options.length)])}>Remove</button>
                             </div>
                         );
                     })}

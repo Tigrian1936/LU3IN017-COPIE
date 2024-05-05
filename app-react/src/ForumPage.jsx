@@ -19,10 +19,10 @@ function ForumPage (props) {
 
   const logOut = (evt)=>{
     setConnectedUser(null);
-    setDisplay(DisplayTypes.MAINPAGE);
+    setDisplay(DisplayTypes.MAIN_PAGE);
   }
 
-  const [currentBodyDisplay,setDisplay] = useState(DisplayTypes.MAINPAGE);
+  const [currentBodyDisplay,setDisplay] = useState(DisplayTypes.MAIN_PAGE);
   const [displayDataId, setDisplayDataId] = useState(null);
 
   const createThreadDisplay = (evt)=>{setDisplay(DisplayTypes.CREATE_THREAD)}
@@ -38,7 +38,7 @@ function ForumPage (props) {
                       <img src={photo} alt="logo du site" height="75"/>
                   </div>
                   <div id="search">
-                    <Search/>
+                    <Search setDisplay = {setDisplay} setDisplayId = {setDisplayDataId}/>
                   </div>
                   <div id="connect">
                       <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}

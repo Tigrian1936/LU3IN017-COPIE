@@ -6,12 +6,14 @@ import ThreadCreation from './ThreadCreation';
 import axios from 'axios';
 import {ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
 import AdminUserApproval from './AdminUserApproval';
+import SearchResults from "./SearchResults.jsx";
 const DisplayTypes = {
-  MAINPAGE: "MainPage",
+  MAIN_PAGE: "MainPage",
   THREAD: "Thread",
   PROFILE: "Profile",
   CREATE_THREAD: "CreateThread",
-  ADMIN : ""
+  ADMIN : "",
+  SEARCH: "Search",
 };
 function ForumBody (props) {
   const user = props.user;
@@ -37,7 +39,11 @@ function ForumBody (props) {
         return (<div className="admin-page">
             <AdminUserApproval setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
         </div>);
-    case DisplayTypes.MAINPAGE: default:
+    case DisplayTypes.SEARCH:
+        return (<div className="search-page">
+            <SearchResults query = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        </div>);
+    case DisplayTypes.MAIN_PAGE: default:
        return (<ThreadRecommendation query = {ThreadsQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>);
   }
 }

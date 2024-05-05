@@ -103,6 +103,14 @@ app.post('/authentication/login', async (req, res)=>{
     }
 });
 
+app.get('/search/:query', async (req, res)=>{
+  api.Search(req.db, req.params.query).then((results)=>{
+    res.status(200).json(results);
+  }).catch(reason =>{
+    res.status(400).json({message : reason.message});
+  })
+});
+
 app.post('/users/:user_id', async (req, res)=>{
   api.ApproveUser(req.db, req.params.user_id).then(() => {
     res.status(200).json({message : "User approved"});
