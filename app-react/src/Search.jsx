@@ -34,7 +34,7 @@ function Search(props) {
                                 <option value={SearchReturnType.THREAD}>Thread</option>
                                 <option value={SearchReturnType.USER}>User</option>
                             </select>
-                            <select onChange={evt => setOptions([...options.slice(0, index), {by : option.by, type: evt.target.value, value: null}, ...options.slice(index + 1, options.length)])}>
+                            <select onChange={evt => setOptions([...options.slice(0, index), {by : option.by, type: evt.target.value, value: evt.target.value === SearchQueryType.TEXT? "" : {from : null, to :  null}}, ...options.slice(index + 1, options.length)])}>
                                 <option value={SearchQueryType.TEXT}>Text</option>
                                 <option value={SearchQueryType.DATE}>Date</option>
                             </select>
