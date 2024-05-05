@@ -1,6 +1,7 @@
 import React from 'react';
 import {SearchReturnType} from "./SearchReturnType.jsx";
 import {SearchQueryType} from "./SearchQueryType.jsx";
+import {DisplayTypes} from "./ForumBody.jsx";
 
 function Search(props) {
     const [returnType, setReturnType] = React.useState(SearchReturnType.THREAD);
