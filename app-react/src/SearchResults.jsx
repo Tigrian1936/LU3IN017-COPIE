@@ -7,7 +7,7 @@ import ThreadList from "./ThreadList.jsx";
 import UserList from "./UserList.jsx";
 import MessageComponent from "./MessageComponent.jsx";
 import MessageList from "./MessageList.jsx";
-
+import { useEffect } from "react";
 function SearchResults(props) {
     const [results, setResults] = React.useState([]);
     const setDisplay = props.setDisplay;
@@ -26,6 +26,10 @@ function SearchResults(props) {
             console.error(error);
         });
     }
+
+    useEffect(() => {
+        getQueryFromServer();
+    }, []);
     return (
         <div>
             <h1>Search Results</h1>
