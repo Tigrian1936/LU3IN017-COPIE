@@ -29,7 +29,7 @@ function Search(props) {
                 {options.map((option, index) => {
                     return (
                         <div key={index}>
-                            <select onChange={evt => setOptions([...options.slice(0, index), { by : evt.target.value, type: option.type, value: null}, ...options.slice(index + 1, options.length)])}>
+                            <select onChange={evt => setOptions([...options.slice(0, index), { by : evt.target.value, type: option.type, value: option.value}, ...options.slice(index + 1, options.length)])}>
                                 <option value={SearchReturnType.MESSAGE}>Message</option>
                                 <option value={SearchReturnType.THREAD}>Thread</option>
                                 <option value={SearchReturnType.USER}>User</option>
