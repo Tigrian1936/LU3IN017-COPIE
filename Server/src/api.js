@@ -234,7 +234,7 @@ async function Search(db, query) {
         case SearchReturnType.MESSAGE:
             return SearchMessages(db, query.options);
         default:
-            reject("Unknown search type");
+            return {message: "Unknown search type"};
     }
 }
 
@@ -300,6 +300,7 @@ async function SearchThreads(db, options) {
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                         }
+                        console.log(mainQueries);
                         const query = {$or: mainQueries};
                         const result = db.collection('Threads').find(query).toArray();
                         if (result != null) {
