@@ -104,7 +104,7 @@ app.post('/authentication/login', async (req, res)=>{
 });
 
 app.get('/search', async (req, res)=>{
-  api.Search(req.db, req.params).then((results)=>{
+  api.Search(req.db, req.data).then((results)=>{
     res.status(200).json(results);
   }).catch(reason =>{
     res.status(400).json({message : reason.message});
