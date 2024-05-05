@@ -291,6 +291,7 @@ async function SearchThreads(db, options) {
                     reject("Unknown search type");
             }
         }
+        
         if (userQueries.length > 0) {
             db.collection('Users').find({$or: userQueries}).then((users) => {
                 users.map(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
@@ -300,7 +301,6 @@ async function SearchThreads(db, options) {
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                         }
-                        console.log(mainQueries);
                         const query = {$or: mainQueries};
                         const result = db.collection('Threads').find(query).toArray();
                         if (result != null) {
@@ -421,7 +421,8 @@ async function SearchUsers(db, options) {
                     reject("Unknown search type");
             }
         }
-
+        
+        
         if (threadQueries.length > 0) {
             db.collection('Threads').find({$or: threadQueries}).then((threads) => {
                 threads.map(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
