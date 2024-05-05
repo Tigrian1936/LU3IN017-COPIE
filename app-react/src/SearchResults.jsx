@@ -13,8 +13,12 @@ function SearchResults(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const getQueryFromServer = () => {
-        console.log(props.query)
-        axios.get(`${GetUrl()}/search`, props.query)
+        axios.get(`${GetUrl()}/search`, {
+            params: {
+                returnType: props.query.returnType,
+                options: props.query.options
+            }
+        })
         .then((response) => {
             if(response.status === 200){
                 setResults(response.data);
