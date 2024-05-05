@@ -103,8 +103,8 @@ app.post('/authentication/login', async (req, res)=>{
     }
 });
 
-app.get('/search/:query', async (req, res)=>{
-  api.Search(req.db, req.params.query).then((results)=>{
+app.get('/search', async (req, res)=>{
+  api.Search(req.db, req.params).then((results)=>{
     res.status(200).json(results);
   }).catch(reason =>{
     res.status(400).json({message : reason.message});
