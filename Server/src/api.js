@@ -226,18 +226,16 @@ async function DeleteUser(db, user_id) {
 
 
 async function Search(db, query) {
-    return new Promise((resolve, reject) => {
-        switch (query.returnType) {
-            case SearchReturnType.THREAD:
-                return SearchThreads(db, query.options);
-            case SearchReturnType.USER:
-                return SearchUsers(db, query.options);
-            case SearchReturnType.MESSAGE:
-                return SearchMessages(db, query.options);
-            default:
-                reject("Unknown search type");
-        }
-    });
+    switch (query.returnType) {
+        case SearchReturnType.THREAD:
+            return SearchThreads(db, query.options);
+        case SearchReturnType.USER:
+            return SearchUsers(db, query.options);
+        case SearchReturnType.MESSAGE:
+            return SearchMessages(db, query.options);
+        default:
+            reject("Unknown search type");
+    }
 }
 
 async function SearchThreads(db, options) {
@@ -442,8 +440,7 @@ async function SearchUsers(db, options) {
                     }).catch((err) => {
                         reject(err);
                     });
-                }
-                else{
+                } else {
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                     }
