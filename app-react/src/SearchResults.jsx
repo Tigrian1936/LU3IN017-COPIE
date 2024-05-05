@@ -29,7 +29,7 @@ function SearchResults(props) {
 
     useEffect(() => {
         getQueryFromServer();
-    }, []);
+    }, [props.query]);
     return (
         <div>
             <h1>Search Results</h1>
