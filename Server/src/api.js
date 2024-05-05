@@ -1,22 +1,19 @@
 const { ObjectId } = require('mongodb');
 
+
 const UsersQueryType = {
     NONAPPROVED: "get-non-approved-users",
 };
+
+
 function convertToObjectId(id){
     if(id instanceof ObjectId){return id;}
     return new ObjectId(id);
 }
 
-async function GetAllThreads(db)
-{
-    const query = {};
-    const options = {projection: {_id : 0, original_poster_id : 1,  creation_date : 1, title : 1, is_admin : 1}};
-    const result = await db.collection('Threads').find(query, options);
-    return await result.toArray();
-}
-
+//Add a user to the database, used in sign in.
 async function CreateUser(db, username, password, admin) {
+    //Query username for unicity.
     const query = {username : username};
     const options = {projection: {_id : 1}};
     const data = await db.collection('Users').findOne(query, options);
@@ -31,6 +28,8 @@ async function CreateUser(db, username, password, admin) {
         }
     });
 }
+
+//Query the messsages of a thread of given id
 async function GetThreadMessages(db, thread_id){
     return new Promise((resolve, reject) => {
         const query = { thread_id : convertToObjectId(thread_id)};
@@ -44,14 +43,8 @@ async function GetThreadMessages(db, thread_id){
         }
     });
 }
-async function GetThreadsNewerThan(db, date)
-{
-    const query = {creation_date : {$gt : date}};
-    const options = {projection: {_id : 0, original_poster_id : 1,  creation_date : 1, title : 1, is_admin : 1}};
-    const result = await db.collection('Threads').find(query, options);
-    return await result.toArray();
-}
 
+//Query threads sorted y date, and return the first n threads of the query
 async function GetFirstNThreadsByDate(db, n)
 {
     return new Promise((resolve, reject) => {
@@ -67,6 +60,7 @@ async function GetFirstNThreadsByDate(db, n)
     });
 }
 
+//Add message by user of user_id to the thread of thread id in the database
 async function CreateMessage(db, thread_id, user_id, text){
     return new Promise((resolve, reject) => {
         const query = {_id  : convertToObjectId(user_id)};
@@ -225,4 +219,4 @@ async function GetThreadByQuery(db, queryType, count){
     return null;
 }
 
-module.exports = {GetAllThreads, DeleteUser, PromoteUser, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetThreadsNewerThan, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};
+module.exports = {DeleteUser, PromoteUser, GetUsersByQuery, ApproveUser, CreateUser, GetUserMessages, GetUser, GetThreadMessages, CreateMessage, GetFirstNThreadsByDate, GetThreadByQuery, CreateThread, GetThreadByTitle, GetThreadById, CreateServerMessage, GetAllThreadsOfUser};

@@ -6,6 +6,7 @@ import ConnectedUserRedirection from './ConnectedUserRedirection';
 import { ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
 import { ForumBody, DisplayTypes } from './ForumBody';
 import { UserContext } from './UserContext';
+import Search from './Search';
 
 function ForumPage (props) {
   
@@ -37,7 +38,7 @@ function ForumPage (props) {
                       <img src={photo} alt="logo du site" height="75"/>
                   </div>
                   <div id="search">
-
+                    <Search/>
                   </div>
                   <div id="connect">
                       <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
