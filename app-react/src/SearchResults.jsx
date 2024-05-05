@@ -29,7 +29,6 @@ function SearchResults(props) {
     return (
         <div>
             <h1>Search Results</h1>
-            <p>Current Query: {props.query}</p>
             {props.query.returnType === SearchReturnType.THREAD?
                 <ThreadList threads={results} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
                 :null}
