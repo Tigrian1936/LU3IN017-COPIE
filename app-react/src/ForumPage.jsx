@@ -38,7 +38,7 @@ function ForumPage (props) {
                       <img src={photo} alt="logo du site" height="75"/>
                   </div>
                   <div id="search">
-                    <Search setDisplay = {setDisplay} setDisplayId = {setDisplayDataId}/>
+                    <Search setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
                   </div>
                   <div id="connect">
                       <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
