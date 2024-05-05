@@ -14,10 +14,10 @@ function SearchResults(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const getQueryFromServer = () => {
-        axios.get(`${GetUrl()}/search`, {
-            returnType: props.query.returnType,
-            options: props.query.options
-        
+        axios.get(`${GetUrl()}/search`, {body : {
+                returnType: props.query.returnType,
+                options: props.query.options
+            }
         })
             .then((response) => {
                 if (response.status === 200) {
