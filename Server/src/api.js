@@ -242,72 +242,119 @@ async function Search(db, query) {
 
 async function SearchThreads(db, options) {
     return new Promise((resolve, reject) => {
-        const queries = [];
+        const mainQueries = [];
+        const userQueries = [];
+        const messageQueries = [];
         for (const option of options) {
             switch (option.by) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            queries.push({title: {$regex: option.value}});
+                            mainQueries.push({title: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
                             if (option.value.from != null && option.value.up_to != null) {
-                                queries.push({creation_date: {$gte: option.value.from}});
-                                queries.push({creation_date: {$lte: option.value.up_to}});
-                                break;
+                                mainQueries.push({creation_date: {$gte: option.value.from}});
+                                mainQueries.push({creation_date: {$lte: option.value.up_to}});
                             }
                             break;
-                        case SearchReturnType.USER:
-                            switch (option.type) {
-                                case SearchQueryType.TEXT:
-                                    db.collection('Users').find({username: {$regex: option.value}}).then((users) => {
-                                        users.map(user => queries.push({original_poster_id_id: user._id}));
-                                    });
-                                    break;
-                                case SearchQueryType.DATE:
-                                    db.collection('Users').find({
-                                        register_date: {
-                                            $gte: option.value.from,
-                                            $lte: option.value.up_to
-                                        }
-                                    }).then((users) => {
-                                        users.map(user => queries.push({original_poster_id_id: user._id}));
-                                    });
-                            }
-                            break;
-                        case SearchReturnType.MESSAGE:
-                            switch (option.type) {
-                                case SearchQueryType.TEXT:
-                                    db.collection('Messages').find({text: {$regex: option.value}}).then((messages) => {
-                                        messages.map(message => queries.push({_id: convertToObjectId(message.thread_id)}));
-                                    });
-                                    break;
-                                case SearchQueryType.DATE:
-                                    db.collection('Messages').find({
-                                        publish_date: {
-                                            $gte: option.value.from,
-                                            $lte: option.value.up_to
-                                        }
-                                    }).then((messages) => {
-                                        messages.map(message => queries.push({_id: convertToObjectId(message.thread_id)}));
-                                    });
-
-                            }
-                            break;
-                        default:
-                            reject("Unknown search type");
                     }
-            }
-            if(queries.length === 0) {
-                reject("No queries found");
-            }
+                    break;
+                case SearchReturnType.USER:
+                    switch (option.type) {
+                        case SearchQueryType.TEXT:
+                            userQueries.push({username: {$regex: option.value}});
+                            break;
+                        case SearchQueryType.DATE:
+                            userQueries.push({
+                                register_date: {
+                                    $gte: option.value.from,
+                                    $lte: option.value.up_to
+                                }
+                            });
+                    }
+                    break;
+                case SearchReturnType.MESSAGE:
+                    switch (option.type) {
+                        case SearchQueryType.TEXT:
+                            messageQueries.push({text: {$regex: option.value}});
+                            break;
+                        case SearchQueryType.DATE:
+                            messageQueries.push({
+                                publish_date: {
+                                    $gte: option.value.from,
+                                    $lte: option.value.up_to
+                                }
+                            });
 
-            const query = {$or: queries};
-            const result = db.collection('Threads').find(query).toArray();
-            if (result != null) {
-                resolve(result);
+                    }
+                    break;
+                default:
+                    reject("Unknown search type");
+            }
+        }
+        if (userQueries.length > 0) {
+            db.collection('Users').find({$or: userQueries}).then((users) => {
+                users.map(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
+                if (messageQueries.length > 0) {
+                    db.collection('Messages').find({$or: messageQueries}).then((messages) => {
+                        messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                        if (mainQueries.length === 0) {
+                            reject("No queries found");
+                        }
+                        const query = {$or: mainQueries};
+                        const result = db.collection('Threads').find(query).toArray();
+                        if (result != null) {
+                            resolve(result);
+                        } else {
+                            reject("Nothing matched the query");
+                        }
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                } else {
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Threads').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }
+            }).catch((err) => {
+                reject(err);
+            });
+        } else {
+            if (messageQueries.length > 0) {
+                db.collection('Messages').find({$or: messageQueries}).then((messages) => {
+                    messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Threads').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }).catch((err) => {
+                    reject(err);
+                });
             } else {
-                reject("No threads found");
+                if (mainQueries.length === 0) {
+                    reject("No queries found");
+                }
+                const query = {$or: mainQueries};
+                const result = db.collection('Threads').find(query).toArray();
+                if (result != null) {
+                    resolve(result);
+                } else {
+                    reject("Nothing matched the query");
+                }
             }
         }
     });
@@ -315,24 +362,22 @@ async function SearchThreads(db, options) {
 
 async function SearchUsers(db, options) {
     return new Promise((resolve, reject) => {
-        const queries = [];
+        const mainQueries = [];
+        const threadQueries = [];
+        const messageQueries = [];
         for (const option of options) {
             switch (option.by) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            db.collection('Threads').find({title: {$regex: option.value}}).then((threads) => {
-                                threads.map(thread => queries.push({_id: convertToObjectId(thread.original_poster_id)}));
-                            });
+                            threadQueries.push({title: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            db.collection('Threads').find({
+                            threadQueries.push({
                                 creation_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
                                 }
-                            }).then((threads) => {
-                                threads.map(thread => queries.push({_id: convertToObjectId(thread.original_poster_id)}));
                             });
                             break;
                         default:
@@ -342,10 +387,10 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            queries.push({username: {$regex: option.value}});
+                            mainQueries.push({username: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            queries.push({
+                            mainQueries.push({
                                 register_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
@@ -359,18 +404,14 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            db.collection('Messages').find({text: {$regex: option.value}}).then((messages) => {
-                                messages.map(message => queries.push({_id: message.user_id}));
-                            });
+                            messageQueries.push({text: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            db.collection('Messages').find({
+                            messageQueries.push({
                                 publish_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
                                 }
-                            }).then((messages) => {
-                                messages.map(message => queries.push({_id: message.user_id}));
                             });
                             break;
                         default:
@@ -381,39 +422,93 @@ async function SearchUsers(db, options) {
                     reject("Unknown search type");
             }
         }
-        if(queries.length === 0) {
-            reject("No queries found");
-        }
-        const query = {$or: queries};
-        const result = db.collection('Users').find(query).toArray();
-        if (result != null) {
-            resolve(result);
+
+        if (threadQueries.length > 0) {
+            db.collection('Threads').find({$or: threadQueries}).then((threads) => {
+                threads.map(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
+                if (messageQueries.length > 0) {
+                    db.collection('Messages').find({$or: messageQueries}).then((messages) => {
+                        messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                        if (mainQueries.length === 0) {
+                            reject("No queries found");
+                        }
+                        const query = {$or: mainQueries};
+                        const result = db.collection('Users').find(query).toArray();
+                        if (result != null) {
+                            resolve(result);
+                        } else {
+                            reject("Nothing matched the query");
+                        }
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                }
+                else{
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Users').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }
+            }).catch((err) => {
+                reject(err);
+            });
         } else {
-            reject("No users found");
+            if (messageQueries.length > 0) {
+                db.collection('Messages').find({$or: messageQueries}).then((messages) => {
+                    messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Users').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }).catch((err) => {
+                    reject(err);
+                });
+            } else {
+                if (mainQueries.length === 0) {
+                    reject("No queries found");
+                }
+                const query = {$or: mainQueries};
+                const result = db.collection('Users').find(query).toArray();
+                if (result != null) {
+                    resolve(result);
+                } else {
+                    reject("Nothing matched the query");
+                }
+            }
         }
     });
 }
 
 async function SearchMessages(db, options) {
     return new Promise((resolve, reject) => {
-        const queries = [];
+        const mainQueries = [];
+        const threadQueries = [];
+        const userQueries = [];
         for (const option of options) {
             switch (option.by) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            db.collection('Threads').find({title: {$regex: option.value}}).then((threads) => {
-                                threads.map(thread => queries.push({thread_id: convertToObjectId(thread._id)}));
-                            });
+                            threadQueries.push({title: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            db.collection('Threads').find({
+                            threadQueries.push({
                                 creation_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
                                 }
-                            }).then((threads) => {
-                                threads.map(thread => queries.push({thread_id : convertToObjectId(thread._id)}));
                             });
                             break;
                         default:
@@ -423,17 +518,14 @@ async function SearchMessages(db, options) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            db.collection('Users').find({username: {$regex: option.value}}).then((users) => {
-                                users.map(user => queries.push({user_id: convertToObjectId(user._id)}))});
+                            userQueries.push({username: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            db.collection('Users').find({
+                            userQueries.push({
                                 register_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
                                 }
-                            }).then((users) => {
-                                users.map(user => queries.push({user_id: convertToObjectId(user._id)}));
                             });
                             break;
                         default:
@@ -443,10 +535,10 @@ async function SearchMessages(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            queries.push({text: {$regex: option.value}});
+                            mainQueries.push({text: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
-                            queries.push({
+                            mainQueries.push({
                                 publish_date: {
                                     $gte: option.value.from,
                                     $lte: option.value.up_to
@@ -461,18 +553,75 @@ async function SearchMessages(db, options) {
                     reject("Unknown search type");
             }
         }
-        if(queries.length === 0) {
-            reject("No queries found");
-        }
-        const query = {$or: queries};
-        const result = db.collection('Messages').find(query).toArray();
-        if (result != null) {
-            resolve(result);
+        if (threadQueries.length > 0) {
+            db.collection('Threads').find({$or: threadQueries}).then((threads) => {
+                threads.map(thread => mainQueries.push({thread_id: convertToObjectId(thread._id)}));
+                if (userQueries.length > 0) {
+                    db.collection('Users').find({$or: userQueries}).then((users) => {
+                        users.map(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+
+                        if (mainQueries.length === 0) {
+                            reject("No queries found");
+                        }
+                        const query = {$or: mainQueries};
+                        const result = db.collection('Messages').find(query).toArray();
+                        if (result != null) {
+                            resolve(result);
+                        } else {
+                            reject("Nothing matched the query");
+                        }
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                } else {
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Messages').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }
+            }).catch((err) => {
+                reject(err);
+            });
         } else {
-            reject("No users found");
+            if (userQueries.length > 0) {
+                db.collection('Users').find({$or: userQueries}).then((users) => {
+                    users.map(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+                    if (mainQueries.length === 0) {
+                        reject("No queries found");
+                    }
+                    const query = {$or: mainQueries};
+                    const result = db.collection('Messages').find(query).toArray();
+                    if (result != null) {
+                        resolve(result);
+                    } else {
+                        reject("Nothing matched the query");
+                    }
+                }).catch((err) => {
+                    reject(err);
+                });
+            } else {
+                if (mainQueries.length === 0) {
+                    reject("No queries found");
+                }
+                const query = {$or: mainQueries};
+                const result = db.collection('Messages').find(query).toArray();
+                if (result != null) {
+                    resolve(result);
+                } else {
+                    reject("Nothing matched the query");
+                }
+
+            }
         }
     });
 }
+
 async function GetThreadByQuery(db, queryType, count) {
     switch (queryType) {
         case "By-most-recent":

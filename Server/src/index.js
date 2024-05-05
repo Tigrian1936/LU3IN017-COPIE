@@ -97,7 +97,12 @@ app.post('/authentication/login', async (req, res) => {
     if (result != null) {
         res.status(200).json(result);
     } else {
-        res.status(401).json({message: "Unknown user"});
+        const queryName = {username: req.body.login};
+        const resultName = await collection.findOne(queryName, options);
+        if (resultName != null) {
+            res.status(401).json({message: "Wrong password"});
+        }
+        res.status(404).json({message: "User not found"});
     }
 });
 

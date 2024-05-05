@@ -5,7 +5,7 @@ import GetUrl from "./Url.jsx";
 function Login (props) {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
-    const [approvedMessage, setApprovedMessage] = useState(false);
+    const [message, setMessage] = useState(null);
     const getLogin = (evt) => {setLogin(evt.target.value)}
     const getPassword = (evt) => {setPassword(evt.target.value)}
 
@@ -19,7 +19,7 @@ function Login (props) {
             if(response.status === 200)
             {
                 if(response.data.approved === false){
-                    setApprovedMessage(true)
+                    setMessage("User account waiting admin for approval")
                 }else {
                     props.logIn({
                         id: response.data._id,
@@ -30,7 +30,9 @@ function Login (props) {
                 }
             }
             else{
-                console.log(response.message);
+                if(response.status === 401 || response.status === 404){
+                    setMessage("Invalid login or password")
+                }
             }
         })
         .catch(err => {
@@ -42,8 +44,8 @@ function Login (props) {
     <div>
         <label htmlFor="login">Login</label><input id="login" onChange={getLogin}/>
         <label htmlFor="mdp">Mot de passe</label><input type="password" id="mdp" onChange={getPassword}/>
-        <button type="submit" onClick={handleSubmit}>Log In</button><button type="reset">Annuler</button>
-        {approvedMessage ? <p>User account waiting admin for approval</p> : <p></p>}
+        <button type="submit" onClick={handleSubmit}>Log In</button><button type="reset">Cancel</button>
+        {message!==null?<label>{message}</label>: null}
     </div>
     );
 }
