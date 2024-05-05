@@ -38,6 +38,10 @@ function Search(props) {
                                     <option value={SearchQueryType.TEXT}>Text</option>
                                     <option value={SearchQueryType.DATE}>Date</option>
                                 </select>
+                                {options[index].type === SearchQueryType.DATE ? <label>From:</label> : null}
+                                <input type={options[index].type === SearchQueryType.DATE ? 'date':'text'} onChange={evt => setOptions([...options.slice(0, index), { type: options[index].value , value: {from : evt.target.value, up_to : options[index].value.up_to}}, ...options.slice(index + 1, options.length)])}></input>
+                                {options[index].type === SearchQueryType.DATE ? <label>To:</label> : null}
+                                {options[index].type === SearchQueryType.DATE ? <input type="date" onChange={evt => setOptions([...options.slice(0, index), { type: options[index].value , value: {from : options[index].value.from, up_to : evt.target.value}}, ...options.slice(index + 1, options.length)])}></input> : null}
                                 <button onClick={evt => setOptions([...options.slice(0, index), ...options.slice(index + 1, options.length)])}>Remove</button>
                             </div>
                         );
