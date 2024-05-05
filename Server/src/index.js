@@ -102,7 +102,7 @@ app.post('/authentication/login', async (req, res) => {
 });
 
 app.get('/search', async (req, res) => {
-    console.log(req.body);
+    console.log(req.query);
     api.Search(req.db, req.query).then((results) => {
         res.status(200).json(results);
     }).catch(reason => {
