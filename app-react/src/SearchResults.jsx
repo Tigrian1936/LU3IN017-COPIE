@@ -14,7 +14,8 @@ function SearchResults(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const getQueryFromServer = () => {
-        axios.get(`${GetUrl()}/search`, {body : {
+        axios.get(`${GetUrl()}/search`, {
+            params: {
                 returnType: props.query.returnType,
                 options: props.query.options
             }
