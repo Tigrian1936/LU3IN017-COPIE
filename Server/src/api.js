@@ -298,6 +298,9 @@ async function SearchThreads(db, options) {
                             reject("Unknown search type");
                     }
             }
+            if(queries.length === 0) {
+                reject("No queries found");
+            }
 
             const query = {$or: queries};
             const result = db.collection('Threads').find(query).toArray();
@@ -378,6 +381,9 @@ async function SearchUsers(db, options) {
                     reject("Unknown search type");
             }
         }
+        if(queries.length === 0) {
+            reject("No queries found");
+        }
         const query = {$or: queries};
         const result = db.collection('Users').find(query).toArray();
         if (result != null) {
@@ -454,6 +460,9 @@ async function SearchMessages(db, options) {
                 default:
                     reject("Unknown search type");
             }
+        }
+        if(queries.length === 0) {
+            reject("No queries found");
         }
         const query = {$or: queries};
         const result = db.collection('Messages').find(query).toArray();
