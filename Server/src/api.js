@@ -312,11 +312,11 @@ async function SearchThreads(db, options) {
         console.log(messageQueries);
 
         if (userQueries.length > 0) {
-            db.collection('Users').find({$or: userQueries}).then((users) => {
-                users.map(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
+            db.collection('Users').find({$or: userQueries}).toArray().then((users) => {
+                users.forEach(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
                 if (messageQueries.length > 0) {
-                    db.collection('Messages').find({$or: messageQueries}).then((messages) => {
-                        messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                    db.collection('Messages').find({$or: messageQueries}).toArray().then((messages) => {
+                        messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
@@ -349,8 +349,8 @@ async function SearchThreads(db, options) {
             });
         } else {
             if (messageQueries.length > 0) {
-                db.collection('Messages').find({$or: messageQueries}).then((messages) => {
-                    messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                db.collection('Messages').find({$or: messageQueries}).toArray().then((messages) => {
+                    messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
@@ -403,8 +403,8 @@ async function SearchUsers(db, options) {
                             });
                             break;
                         default:
-                            console.log("problem");
                             reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.USER:
@@ -422,6 +422,7 @@ async function SearchUsers(db, options) {
                             break;
                         default:
                             reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.MESSAGE:
@@ -438,21 +439,23 @@ async function SearchUsers(db, options) {
                             });
                             break;
                         default:
-                            reject("Unknown search type");
+                            reject("Unknown search type");  
+                            return;
                     }
                     break;
                 default:
                     reject("Unknown search type");
+                    return;
             }
         }
 
 
         if (threadQueries.length > 0) {
-            db.collection('Threads').find({$or: threadQueries}).then((threads) => {
-                threads.map(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
+            db.collection('Threads').find({$or: threadQueries}).toArray().then((threads) => {
+                threads.forEach(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
                 if (messageQueries.length > 0) {
-                    db.collection('Messages').find({$or: messageQueries}).then((messages) => {
-                        messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                    db.collection('Messages').find({$or: messageQueries}).toArray().then((messages) => {
+                        messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
@@ -485,8 +488,8 @@ async function SearchUsers(db, options) {
             });
         } else {
             if (messageQueries.length > 0) {
-                db.collection('Messages').find({$or: messageQueries}).then((messages) => {
-                    messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                db.collection('Messages').find({$or: messageQueries}).toArray().then((messages) => {
+                    messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
@@ -540,6 +543,7 @@ async function SearchMessages(db, options) {
                             break;
                         default:
                             reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.USER:
@@ -557,6 +561,7 @@ async function SearchMessages(db, options) {
                             break;
                         default:
                             reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.MESSAGE:
@@ -574,18 +579,20 @@ async function SearchMessages(db, options) {
                             break;
                         default:
                             reject("Unknown search type");
+                            return;
                     }
                     break;
                 default:
                     reject("Unknown search type");
+                    return;
             }
         }
         if (threadQueries.length > 0) {
-            db.collection('Threads').find({$or: threadQueries}).then((threads) => {
-                threads.map(thread => mainQueries.push({thread_id: convertToObjectId(thread._id)}));
+            db.collection('Threads').find({$or: threadQueries}).toArray().then((threads) => {
+                threads.forEach(thread => mainQueries.push({thread_id: convertToObjectId(thread._id)}));
                 if (userQueries.length > 0) {
-                    db.collection('Users').find({$or: userQueries}).then((users) => {
-                        users.map(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+                    db.collection('Users').find({$or: userQueries}).toArray().then((users) => {
+                        users.forEach(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
 
                         if (mainQueries.length === 0) {
                             reject("No queries found");
@@ -619,8 +626,8 @@ async function SearchMessages(db, options) {
             });
         } else {
             if (userQueries.length > 0) {
-                db.collection('Users').find({$or: userQueries}).then((users) => {
-                    users.map(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+                db.collection('Users').find({$or: userQueries}).toArray().then((users) => {
+                    users.forEach(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
