@@ -1,5 +1,6 @@
-export const SearchReturnType = {
-    THREAD: "Thread",
-    USER: "User",
-    MESSAGE: "Message",
+const SearchReturnType = {
+    THREAD: "Threads",
+    USER: "Users",
+    MESSAGE: "Messages",
 };
+export {SearchReturnType};

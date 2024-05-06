@@ -9,9 +9,9 @@ const SearchQueryType = {
     DATE: "Date"
 }
 const SearchReturnType = {
-    THREAD: "Thread",
-    USER: "User",
-    MESSAGE: "Message",
+    THREAD: "Threads",
+    USER: "Users",
+    MESSAGE: "Messages",
 };
 
 function convertToObjectId(id) {
@@ -224,7 +224,9 @@ async function DeleteUser(db, user_id) {
     });
 }
 
-
+//ça devrait être possible de faire une méthode qui regroupe les 3 méthodes de recherche, ça simplifirait que 
+//d'avoir 3 méthodes similaires (en passant le type d'une option dans le collection de db, on peut rendre les recherches secondaires génériques)
+//Mais bon, j'ai fait comme ça, ça marche aussi, et je me casse pas la tête pour ça (même si c'est plus lourd à maintenir)
 async function Search(db, query) {
     switch (query.returnType) {
         case SearchReturnType.THREAD:
@@ -238,12 +240,13 @@ async function Search(db, query) {
     }
 }
 
+
 async function SearchThreads(db, options) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
         const userQueries = [];
         const messageQueries = [];
-        
+
         for (const option of options) {
             console.log(option);
             switch (option.by) {
@@ -389,6 +392,7 @@ async function SearchUsers(db, options) {
                             });
                             break;
                         default:
+                            console.log("problem");
                             reject("Unknown search type");
                     }
                     break;
@@ -412,6 +416,7 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
+                            console.log("HEHE")
                             messageQueries.push({text: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
@@ -430,8 +435,8 @@ async function SearchUsers(db, options) {
                     reject("Unknown search type");
             }
         }
-        
-        
+
+
         if (threadQueries.length > 0) {
             db.collection('Threads').find({$or: threadQueries}).then((threads) => {
                 threads.map(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
