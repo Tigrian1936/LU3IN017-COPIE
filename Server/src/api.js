@@ -243,7 +243,9 @@ async function SearchThreads(db, options) {
         const mainQueries = [];
         const userQueries = [];
         const messageQueries = [];
+        
         for (const option of options) {
+            console.log(option);
             switch (option.by) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
@@ -291,7 +293,10 @@ async function SearchThreads(db, options) {
                     reject("Unknown search type");
             }
         }
-        
+        console.log(mainQueries);
+        console.log(userQueries);
+        console.log(messageQueries);
+
         if (userQueries.length > 0) {
             db.collection('Users').find({$or: userQueries}).then((users) => {
                 users.map(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
@@ -300,6 +305,7 @@ async function SearchThreads(db, options) {
                         messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
+                            return
                         }
                         const query = {$or: mainQueries};
                         const result = db.collection('Threads').find(query).toArray();
@@ -314,6 +320,7 @@ async function SearchThreads(db, options) {
                 } else {
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Threads').find(query).toArray();
@@ -332,6 +339,7 @@ async function SearchThreads(db, options) {
                     messages.map(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Threads').find(query).toArray();
@@ -346,6 +354,7 @@ async function SearchThreads(db, options) {
             } else {
                 if (mainQueries.length === 0) {
                     reject("No queries found");
+                    return
                 }
                 const query = {$or: mainQueries};
                 const result = db.collection('Threads').find(query).toArray();
@@ -431,6 +440,7 @@ async function SearchUsers(db, options) {
                         messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
+                            return
                         }
                         const query = {$or: mainQueries};
                         const result = db.collection('Users').find(query).toArray();
@@ -445,6 +455,7 @@ async function SearchUsers(db, options) {
                 } else {
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Users').find(query).toArray();
@@ -463,6 +474,7 @@ async function SearchUsers(db, options) {
                     messages.map(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Users').find(query).toArray();
@@ -477,6 +489,7 @@ async function SearchUsers(db, options) {
             } else {
                 if (mainQueries.length === 0) {
                     reject("No queries found");
+                    return
                 }
                 const query = {$or: mainQueries};
                 const result = db.collection('Users').find(query).toArray();
@@ -561,6 +574,7 @@ async function SearchMessages(db, options) {
 
                         if (mainQueries.length === 0) {
                             reject("No queries found");
+                            return
                         }
                         const query = {$or: mainQueries};
                         const result = db.collection('Messages').find(query).toArray();
@@ -575,6 +589,7 @@ async function SearchMessages(db, options) {
                 } else {
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Messages').find(query).toArray();
@@ -593,6 +608,7 @@ async function SearchMessages(db, options) {
                     users.map(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
+                        return
                     }
                     const query = {$or: mainQueries};
                     const result = db.collection('Messages').find(query).toArray();
@@ -607,6 +623,7 @@ async function SearchMessages(db, options) {
             } else {
                 if (mainQueries.length === 0) {
                     reject("No queries found");
+                    return
                 }
                 const query = {$or: mainQueries};
                 const result = db.collection('Messages').find(query).toArray();
