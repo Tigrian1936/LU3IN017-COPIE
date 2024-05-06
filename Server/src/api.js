@@ -261,6 +261,9 @@ async function SearchThreads(db, options) {
                                 mainQueries.push({creation_date: {$lte: option.value.up_to}});
                             }
                             break;
+                        default:
+                            reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.USER:
@@ -275,6 +278,10 @@ async function SearchThreads(db, options) {
                                     $lte: option.value.up_to
                                 }
                             });
+                            break;
+                        default:
+                            reject("Unknown search type");
+                            return;
                     }
                     break;
                 case SearchReturnType.MESSAGE:
@@ -289,11 +296,15 @@ async function SearchThreads(db, options) {
                                     $lte: option.value.up_to
                                 }
                             });
-
+                            break;
+                        default:
+                            reject("Unknown search type");
+                            return;
                     }
                     break;
                 default:
                     reject("Unknown search type");
+                    return;
             }
         }
         console.log(mainQueries);
@@ -416,7 +427,6 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            console.log("HEHE")
                             messageQueries.push({text: {$regex: option.value}});
                             break;
                         case SearchQueryType.DATE:
