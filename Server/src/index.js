@@ -1,25 +1,22 @@
 const express = require('express')
 const app = express();
-const session = require('express-session')
+const session = require('express-session');
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
 app.use(session({
-    secret: 'SuperProjet'
+    secret: 'secret',
 }))
 
-app.use((req, res, next) => {
-    console.log("CORS");
-    cors({
-        origin: 'http://localhost:3000',
+app.use(cors(
+    {   
+        origin: 'http://localhost:8080',
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    })
-    console.log("CORS2");
-    next();
-});
+        methods : ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    }
+));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
@@ -161,6 +158,13 @@ app.delete('/messages/:message_id', async (req, res) => {
     }).catch(reason => {
         res.status(400).json({message: reason.message});
     });
+});
+
+app.options('/authentication/login', function (req, res) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header("Access-Control-Allow-Headers", "*");
+    res.end();
 });
 
 app.post('/authentication/login', async (req, res) => {
