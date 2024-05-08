@@ -2,23 +2,23 @@ const express = require('express')
 const app = express();
 const session = require('express-session')
 const cors = require('cors');
-const {MongoClient, Collection, MongoAzureError} = require('mongodb');
+const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
 app.use(session({
     secret: 'SuperProjet'
 }))
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-    console.log(req);
-    next();
+
+app.use((req, res, next) => {
+    console.log("CORS");
+    cors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    })
+    console.log("CORS2");
 });
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials : true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
@@ -250,6 +250,6 @@ app.post('/users', async (req, res) => {
 
 // start express server on port 3000
 app.listen(3000, () => {
-    console.log("server started on port 5000");
+    console.log("server started on port 3000");
 });
 
