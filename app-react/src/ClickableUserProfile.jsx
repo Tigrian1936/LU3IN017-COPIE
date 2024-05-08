@@ -7,7 +7,7 @@ function ClickableUserProfile(props) {
     const currentUser = useContext(UserContext);
 
     const ApproveUser = () => {
-        axios.post(`${GetUrl()}/users/${props.user.id}`)
+        axios.post(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
             })
