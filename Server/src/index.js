@@ -7,9 +7,13 @@ const api = require('./api.js');
 app.use(express.json())
 app.use(cors({
     origin: 'http://localhost:3000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    credentials : true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+    next();
+});
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
 
@@ -31,6 +35,8 @@ app.use((req, res, next) => {
 app.use(session({
     secret: 'SuperProjet'
 }))
+
+
 app.post('/threads', async (req, res) => {
     if(!req.session.user){
         res.status(401).json({message: "User not connected"});
