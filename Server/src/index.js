@@ -1,15 +1,17 @@
 const express = require('express')
 const app = express();
-const session = require('express-session');
+const cookieSession = require('cookie-session')
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
-app.use(session({
-    secret: 'secret',
+app.use(cookieSession({
+    name : 'session',
+    keys : ['Victor', 'Ilian'],
 }))
 
+app.use(cors());
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
@@ -153,13 +155,6 @@ app.delete('/messages/:message_id', async (req, res) => {
     });
 });
 
-app.options('/authentication/login', function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Methods', '*');
-    res.header("Access-Control-Allow-Headers", "*");
-    res.end();
-});
-
 app.post('/authentication/login', async (req, res) => {
     const collection = req.db.collection('Users');
     const query = {username: req.body.login, password: req.body.password};
@@ -245,13 +240,6 @@ app.post('/users', async (req, res) => {
             res.status(400).json({message: reason.message});
         });
 });
-app.use(cors(
-    {
-        origin: 'http://localhost:3000',
-        credentials: true,
-        methods : ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    }
-));
 
 // start express server on port 3000
 app.listen(3000, () => {
