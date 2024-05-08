@@ -33,6 +33,9 @@ function Login (props) {
                 if(response.status === 401 || response.status === 404){
                     setMessage("Invalid login or password")
                 }
+                else{
+                    setMessage(response.message)
+                }
             }
         })
         .catch(err => {
