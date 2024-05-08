@@ -102,7 +102,9 @@ app.post('/authentication/login', async (req, res) => {
         if (resultName != null) {
             res.status(401).json({message: "Wrong password"});
         }
-        res.status(404).json({message: "User not found"});
+        else{
+            res.status(401).json({message: "User not found"});
+        }
     }
 });
 
