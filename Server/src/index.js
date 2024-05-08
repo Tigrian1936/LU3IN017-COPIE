@@ -6,12 +6,11 @@ const {MongoClient, Collection, MongoAzureError} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 app.use(cors({
-    origin: 'http://localhost:3000',
     credentials : true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(function (req, res, next) {
-    req.header("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     next();
 });
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
