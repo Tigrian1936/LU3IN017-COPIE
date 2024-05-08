@@ -7,7 +7,7 @@ const api = require('./api.js');
 app.use(express.json())
 app.use(cors({
     AccessControlAllowOrigin: '*',
-    origin: 'http://localhost:5000',
+    origin: 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
@@ -28,12 +28,6 @@ app.use((req, res, next) => {
     req.db = client.db('DatabaseProjet'); // Attach the database to the request
     next();
 });
-
-// middleware to test if authenticated
-function isAuthenticated (req, res, next) {
-    if (req.session.user) next()
-    else next('route')
-}
 
 app.use(session({
     secret: 'SuperProjet'
