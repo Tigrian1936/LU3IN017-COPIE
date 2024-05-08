@@ -3,7 +3,8 @@ import ClickableUserProfile from './ClickableUserProfile';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import GetUrl from './Url';
-
+import {UserContext} from "./UserContext.jsx";
+import {useContext} from 'react';
 function MessageComponent (props){
   const LoadingStates = {
     LOADING : "Loading",
@@ -12,7 +13,7 @@ function MessageComponent (props){
   };
   const [user, setUser] = useState(null);
   const [dataLoadingState, setLoadingState] = useState(LoadingStates.IDLE);
-
+  const connectedUser = useContext(UserContext);
   const id = props.user_id;
   const getUserInfosFromDB = () =>{
     if (id === 0) {
@@ -57,6 +58,17 @@ function MessageComponent (props){
       <p>Loading... </p>
     </div>)
   }
+
+  function deleteMessage() {
+    axios.delete(`${GetUrl()}/messages/${props.id}`).then((response) => {
+      if(response.status === 200){
+          props.setUpToDate(true);
+      }
+    }).catch((error) => {
+      alert(error.response.data.message);
+    });
+  }
+
   return (<div className="message">
     <ClickableUserProfile user = {user} switchToProfile = {props.switchToProfile}/>
     <p>{props.text}</p>
@@ -64,6 +76,7 @@ function MessageComponent (props){
       <span className="user-id">{user.username}</span> 
       <span className="message-date">{props.date}</span>  
       <span className="message-index">{props.index + 1}</span>
+      {(user.is_admin || id === connectedUser.id) && id !== 0 ? <button onClick={evt => deleteMessage()}>Delete</button> : null}
     </div> 
   </div>);
 }

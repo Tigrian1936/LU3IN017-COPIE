@@ -10,7 +10,13 @@ import MessageList from "./MessageList.jsx";
 import {useEffect} from "react";
 
 function SearchResults(props) {
+    const LoadingStates = {
+        LOADING : "Loading",
+        LOADED : "Loaded",
+        IDLE : "Idle",
+    };
     const [results, setResults] = React.useState([]);
+    const [loading, setLoading] = React.useState(LoadingStates.IDLE);
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const getQueryFromServer = () => {
@@ -22,19 +28,30 @@ function SearchResults(props) {
         })
             .then((response) => {
                 if (response.status === 200) {
+                    setLoading(LoadingStates.LOADED);
                     setResults(response.data);
                 } else {
-                    console.log(response.message);
+                    alert(response.data.messages) 
                 }
             })
             .catch((error) => {
-                console.error(error);
+                setLoading(LoadingStates.IDLE);
+                alert(error.response.data.messages);
             });
     }
-
+    const [upToDate, setUpToDate] = React.useState(false);
+    
     useEffect(() => {
+        setLoading(LoadingStates.LOADING)
         getQueryFromServer();
-    }, [props.query]);
+        setUpToDate(false)
+    }, [props.query, upToDate]);
+    if (loading === LoadingStates.LOADING) {
+        return (<div>Loading...</div>);
+    }
+    if(loading === LoadingStates.IDLE){
+        return (<div>Error while loading data</div>);
+    }
     return (
         <div>
             <h1>Search Results</h1>
@@ -45,7 +62,7 @@ function SearchResults(props) {
                 <UserList users={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>
                 : null}
             {props.query.returnType === SearchReturnType.MESSAGE ?
-                <MessageList messages={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>
+                <MessageList messages={results} setUpToDate = {setUpToDate} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>
                 : null}
             <button onClick={evt => props.setDisplay("MAIN_PAGE")}>Go back</button>
         </div>

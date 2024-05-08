@@ -34,11 +34,12 @@ function UserProfile(props){
       console.log(error);
     });
   }
-
+  const [upToDate, setUpToDate] = useState(false);
 
   useEffect(() => {
     setLoadingState(LoadingStates.LOADING)
-    getUserInfosFromDB();}, []
+    getUserInfosFromDB();
+    setUpToDate(false)}, [upToDate, props.id]
   );
   if(dataLoadingState === LoadingStates.LOADING){
     return (<div className="user-profile">
@@ -60,7 +61,7 @@ function UserProfile(props){
   {
     <div className="profile-details">
         <label className="username">{user.username} </label> 
-        <MessageList messages = {messages} setDisplay = {props.setDisplay} setDisplayDataId = {props.setDisplayDataId}/>
+        <MessageList messages = {messages} setUpToDate = {setUpToDate} setDisplay = {props.setDisplay} setDisplayDataId = {props.setDisplayDataId}/>
     </div>  
     
 

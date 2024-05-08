@@ -136,6 +136,30 @@ app.delete('/users/:user_id', async (req, res) => {
     });
 });
 
+app.delete('/threads/:thread_id', async (req, res) => {
+    if(!req.session.user){
+        res.status(401).json({message: "User not connected"});
+        return;
+    }
+    api.DeleteThread(req.db, req.params.thread_id).then(() => {
+        res.status(200).json({message: "Thread deleted"});
+    }).catch(reason => {
+        res.status(400).json({message: reason.message});
+    });
+});
+
+app.delete('/messages/:message_id', async (req, res) => {
+    if(!req.session.user){
+        res.status(401).json({message: "User not connected"});
+        return;
+    }
+    api.DeleteMessage(req.db, req.params.message_id).then(() => {
+        res.status(200).json({message: "Message deleted"});
+    }).catch(reason => {
+        res.status(400).json({message: reason.message});
+    });
+});
+
 app.post('/authentication/login', async (req, res) => {
     const collection = req.db.collection('Users');
     const query = {username: req.body.login, password: req.body.password};

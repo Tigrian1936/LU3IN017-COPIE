@@ -224,6 +224,33 @@ async function DeleteUser(db, user_id) {
     });
 }
 
+async function DeleteMessage(db, message_id) {
+    return new Promise((resolve, reject) => {
+        const query = {_id: convertToObjectId(message_id)};
+        db.collection('Messages').deleteOne(query).then(() => {
+            resolve();
+        }).catch(() => {
+            reject();
+        });
+    });
+}
+
+async function DeleteThread(db, thread_id) {
+    return new Promise((resolve, reject) => {
+        const queryMessages = {thread_id: convertToObjectId(thread_id)};
+        db.collection('Messages').deleteMany(queryMessages).then(() => {
+            const query = {_id: convertToObjectId(thread_id)};
+            db.collection('Threads').deleteOne(query).then(() => {
+                resolve();
+            }).catch(() => {
+                reject();
+            });
+        }).catch(() => {
+            reject();
+        });
+    });
+}
+
 //ça devrait être possible de faire une méthode qui regroupe les 3 méthodes de recherche, ça simplifirait que 
 //d'avoir 3 méthodes similaires (en passant le type d'une option dans le collection de db, on peut rendre les recherches secondaires génériques)
 //Mais bon, j'ai fait comme ça, ça marche aussi, et je me casse pas la tête pour ça (même si c'est plus lourd à maintenir)
@@ -671,6 +698,8 @@ async function GetThreadByQuery(db, queryType, count) {
 
 module.exports = {
     Search,
+    DeleteMessage,
+    DeleteThread,
     DeleteUser,
     PromoteUser,
     GetUsersByQuery,
