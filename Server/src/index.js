@@ -6,7 +6,8 @@ const {MongoClient, Collection, MongoAzureError} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 app.use(cors({
-    origin: 'http://localhost:5000',
+    origin: 'http://127.0.0.1:5000',
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
