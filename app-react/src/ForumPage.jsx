@@ -18,8 +18,15 @@ function ForumPage (props) {
   }
 
   const logOut = (evt)=>{
-    setConnectedUser(null);
-    setDisplay(DisplayTypes.MAIN_PAGE);
+    axios.get(`${GetUrl()}/authentication/logout`)
+    .then((response) => {
+      if(response.status === 200){
+        setConnectedUser(null);
+        setDisplay(DisplayTypes.MAIN_PAGE);
+      }
+    }).catch((err)=>{
+      alert(err.response.data.message)
+    });
   }
 
   const [currentBodyDisplay,setDisplay] = useState(DisplayTypes.MAIN_PAGE);

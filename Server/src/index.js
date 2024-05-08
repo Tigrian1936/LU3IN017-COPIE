@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express();
+const session = require('express-session')
 const cors = require('cors');
 const {MongoClient, Collection, MongoAzureError} = require('mongodb');
 const api = require('./api.js');
@@ -22,6 +23,10 @@ app.use((req, res, next) => {
     req.db = client.db('DatabaseProjet'); // Attach the database to the request
     next();
 });
+
+app.use(session({
+    secret: 'SuperProjet'
+}))
 app.post('/threads', async (req, res) => {
     api.CreateThread(req.db, req.body.original_poster_id, req.body.title, req.body.is_admin).then((thread_id) => {
         api.CreateServerMessage(req.db, thread_id.insertedId, req.body.original_poster_id, req.body.title, req.body.is_admin)
@@ -95,6 +100,11 @@ app.post('/authentication/login', async (req, res) => {
     const options = {projection: {_id: 1, username: 1, password: 1, register_date: 1, is_admin: 1, approved: 1}};
     const result = await collection.findOne(query, options);
     if (result != null) {
+        if (result.approved === false) {
+            res.status(401).json({message: "User account waiting admin for approval"});
+            return;
+        }
+        req.session.user = result;
         res.status(200).json(result);
     } else {
         const queryName = {username: req.body.login};
@@ -106,6 +116,11 @@ app.post('/authentication/login', async (req, res) => {
             res.status(401).json({message: "User not found"});
         }
     }
+});
+
+app.get('/authentication/logout', async (req, res) => {
+    req.session.destroy();
+    res.status(200).json({message: "Logged out"});
 });
 
 app.get('/search', async (req, res) => {
