@@ -35,6 +35,9 @@ function Login(props) {
                 } 
             })
             .catch(err => {
+                console.log(err.response.message)
+                console.log(err.response.data.message)
+                console.log(err.response)
                 setMessage(err.response.message)
             });
     };
