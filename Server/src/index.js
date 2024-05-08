@@ -18,6 +18,7 @@ app.use((req, res, next) => {
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     })
     console.log("CORS2");
+    next();
 });
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
