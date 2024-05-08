@@ -7,11 +7,16 @@ const api = require('./api.js');
 app.use(express.json())
 
 app.use(cookieSession({
-    name : 'session',
-    keys : ['Victor', 'Ilian'],
+    name: 'session',
+    keys: ['Victor', 'Ilian'],
 }))
 
-app.use(cors());
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true
+    }
+));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
@@ -33,7 +38,7 @@ app.use((req, res, next) => {
 
 
 app.post('/threads', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -47,7 +52,7 @@ app.post('/threads', async (req, res) => {
 });
 
 app.get('/threads/:thread_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -59,7 +64,7 @@ app.get('/threads/:thread_id', async (req, res) => {
 });
 
 app.post('/threads/:thread_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -71,7 +76,7 @@ app.post('/threads/:thread_id', async (req, res) => {
 });
 
 app.get('/users/:user_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -91,7 +96,7 @@ app.get('/users/:user_id', async (req, res) => {
 });
 
 app.put('/users/:user_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -104,7 +109,7 @@ app.put('/users/:user_id', async (req, res) => {
 
 
 app.get('/threads', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -116,11 +121,11 @@ app.get('/threads', async (req, res) => {
 });
 
 app.delete('/users/:user_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
-    if(req.session.user.is_admin === false){
+    if (req.session.user.is_admin === false) {
         res.status(401).json({message: "User not admin"});
         return;
     }
@@ -132,7 +137,7 @@ app.delete('/users/:user_id', async (req, res) => {
 });
 
 app.delete('/threads/:thread_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -144,7 +149,7 @@ app.delete('/threads/:thread_id', async (req, res) => {
 });
 
 app.delete('/messages/:message_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -172,15 +177,14 @@ app.post('/authentication/login', async (req, res) => {
         const resultName = await collection.findOne(queryName, options);
         if (resultName != null) {
             res.status(401).json({message: "Wrong password"});
-        }
-        else{
+        } else {
             res.status(401).json({message: "User not found"});
         }
     }
 });
 
 app.get('/authentication/logout', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -189,7 +193,7 @@ app.get('/authentication/logout', async (req, res) => {
 });
 
 app.get('/search', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -201,11 +205,11 @@ app.get('/search', async (req, res) => {
 });
 
 app.post('/users/:user_id', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
-    if(req.session.user.is_admin === false){
+    if (req.session.user.is_admin === false) {
         res.status(401).json({message: "User not admin"});
         return;
     }
@@ -217,7 +221,7 @@ app.post('/users/:user_id', async (req, res) => {
 });
 
 app.get('/users', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
@@ -229,7 +233,7 @@ app.get('/users', async (req, res) => {
 });
 
 app.post('/users', async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.status(401).json({message: "User not connected"});
         return;
     }
