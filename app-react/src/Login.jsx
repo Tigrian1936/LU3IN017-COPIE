@@ -35,10 +35,7 @@ function Login(props) {
                 } 
             })
             .catch(err => {
-                console.log(err.response.message)
-                console.log(err.response.data.message)
-                console.log(err.response)
-                setMessage(err.response.message)
+                setMessage(err.response.data.message)
             });
     };
 
@@ -48,7 +45,7 @@ function Login(props) {
             <label htmlFor="mdp">Mot de passe</label><input type="password" id="mdp" onChange={getPassword}/>
             <button type="submit" onClick={handleSubmit}>Log In</button>
             <button type="reset">Cancel</button>
-            {message != null ? alert({message}) : null}
+            {message != null ? <label>{message}</label> : null}
         </div>
     );
 }
