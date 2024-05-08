@@ -7,6 +7,8 @@ import { ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
 import { ForumBody, DisplayTypes } from './ForumBody';
 import { UserContext } from './UserContext';
 import Search from './Search';
+import axios from 'axios';
+import { GetUrl } from './Url';
 
 function ForumPage (props) {
   
