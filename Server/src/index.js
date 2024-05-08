@@ -10,13 +10,6 @@ app.use(session({
     secret: 'secret',
 }))
 
-app.use(cors(
-    {   
-        origin: 'http://localhost:3000',
-        credentials: true,
-        methods : ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    }
-));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
@@ -252,6 +245,13 @@ app.post('/users', async (req, res) => {
             res.status(400).json({message: reason.message});
         });
 });
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true,
+        methods : ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    }
+));
 
 // start express server on port 3000
 app.listen(3000, () => {
