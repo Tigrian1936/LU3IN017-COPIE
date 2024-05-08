@@ -48,7 +48,6 @@ function Login (props) {
         <label htmlFor="login">Login</label><input id="login" onChange={getLogin}/>
         <label htmlFor="mdp">Mot de passe</label><input type="password" id="mdp" onChange={getPassword}/>
         <button type="submit" onClick={handleSubmit}>Log In</button><button type="reset">Cancel</button>
-        {message!=null?<alert>{message}</alert>: null}
     </div>
     );
 }
