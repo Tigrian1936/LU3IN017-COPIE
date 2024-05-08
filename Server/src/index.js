@@ -6,7 +6,7 @@ const {MongoClient, Collection, MongoAzureError} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 app.use(cors({
-    origin: 'http://127.0.0.1:5000',
+    origin: 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
@@ -240,8 +240,8 @@ app.post('/users', async (req, res) => {
         });
 });
 
-// start express server on port 5000
-app.listen(5000, () => {
+// start express server on port 3000
+app.listen(3000, () => {
     console.log("server started on port 5000");
 });
 
