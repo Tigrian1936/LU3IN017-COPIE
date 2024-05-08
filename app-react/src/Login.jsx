@@ -18,7 +18,7 @@ function Login(props) {
         axios.post(`${GetUrl()}/authentication/login`, {
             login: login,
             password: password
-        }, {headers : {withCredentials: true}})
+        })
             .then((response) => {
                 if (response.status === 200) {
                     props.logIn({
