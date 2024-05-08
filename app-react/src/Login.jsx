@@ -32,16 +32,10 @@ function Login(props) {
                             is_admin: response.data.is_admin
                         })
                     }
-                } else {
-                    if (response.status === 401) {
-                        setMessage("Invalid login or password")
-                    } else {
-                        setMessage(response.message)
-                    }
-                }
+                } 
             })
             .catch(err => {
-                console.log(err)
+                setMessage(err.response.message)
             });
     };
 
