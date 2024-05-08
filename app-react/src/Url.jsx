@@ -1,5 +1,4 @@
-function GetUrl(){
+
+export function GetUrl(){
     return "http://localhost:5000";
 }
-
-export default GetUrl;
