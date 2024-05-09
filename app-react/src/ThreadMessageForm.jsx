@@ -12,8 +12,10 @@ function ThreadMessageForm(props) {
         event.preventDefault();
         axios.post(`${GetUrl()}/threads/${props.id}`, {
             withCredentials: true,
-            user_id: user.id,
-            text: message
+            params : {
+                user_id: user.id,
+                text: message
+            }
         })
             .then((response) => {
                 if (response.status === 200) {
