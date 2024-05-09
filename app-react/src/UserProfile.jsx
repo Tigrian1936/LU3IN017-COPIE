@@ -23,7 +23,7 @@ function UserProfile(props){
         setUser({username: "User Deleted", id: -1})
         return;
     }
-    axios.get(`${GetUrl()}/users/${props.id}`)
+    axios.get(`${GetUrl()}/users/${props.id}`, {withCredentials: true})
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       setMessages(response.data.messages);
@@ -62,15 +62,7 @@ function UserProfile(props){
     <div className="profile-details">
         <label className="username">{user.username} </label> 
         <MessageList messages = {messages} setUpToDate = {setUpToDate} setDisplay = {props.setDisplay} setDisplayDataId = {props.setDisplayDataId}/>
-    </div>  
-    
-
-
-    //Pseudo
-    //Photo
-    //Date d'inscription
-    //Réponse
-    //Fil de discu
+    </div>
 
   }
   </div>

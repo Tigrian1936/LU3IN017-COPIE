@@ -25,7 +25,7 @@ function SearchResults(props) {
                 returnType: props.query.returnType,
                 options: props.query.options
             }
-        })
+        }, {withCredentials: true})
             .then((response) => {
                 if (response.status === 200) {
                     setLoading(LoadingStates.LOADED);

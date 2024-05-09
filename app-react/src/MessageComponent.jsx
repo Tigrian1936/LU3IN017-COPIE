@@ -21,7 +21,7 @@ function MessageComponent (props){
       setLoadingState(LoadingStates.LOADED);
       return;
     }
-    axios.get(`${GetUrl()}/users/${id}`)
+    axios.get(`${GetUrl()}/users/${id}`, {withCredentials: true})
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       const user = response.data.user;
@@ -60,7 +60,7 @@ function MessageComponent (props){
   }
 
   function deleteMessage() {
-    axios.delete(`${GetUrl()}/messages/${props.id}`).then((response) => {
+    axios.delete(`${GetUrl()}/messages/${props.id}`, {withCredentials: true}).then((response) => {
       if(response.status === 200){
           props.setUpToDate(true);
       }

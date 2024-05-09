@@ -18,7 +18,7 @@ function ClickableUserProfile(props) {
     
     const PromoteUser = () => {
         if(!currentUser.is_admin){return}
-        axios.put(`${GetUrl()}/users/${props.user.id}`)
+        axios.put(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
             })
@@ -28,7 +28,7 @@ function ClickableUserProfile(props) {
     }
     
     const DeleteUser = () => {
-        axios.delete(`${GetUrl()}/users/${props.user.id}`)
+        axios.delete(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
             })

@@ -17,7 +17,7 @@ function Signin (props) {
                 login: login,
                 password: pass1,
                 admin : admin
-            })
+            }, {withCredentials: true})
                 .then((response) => {
                     if (response.status === 200) {
                         setWaitingApproval(true)

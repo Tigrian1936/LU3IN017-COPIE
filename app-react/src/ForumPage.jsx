@@ -20,7 +20,7 @@ function ForumPage (props) {
   }
 
   const logOut = (evt)=>{
-    axios.get(`${GetUrl()}/authentication/logout`)
+    axios.get(`${GetUrl()}/authentication/logout`, {withCredentials: true})
     .then((response) => {
       if(response.status === 200){
         setConnectedUser(null);

@@ -13,7 +13,7 @@ function ThreadMessageForm(props) {
         axios.post(`${GetUrl()}/threads/${props.id}`, {
             user_id: user.id,
             text: message
-        })
+        }, {withCredentials: true})
             .then((response) => {
                 if (response.status === 200) {
                     props.setUpToDate(true);

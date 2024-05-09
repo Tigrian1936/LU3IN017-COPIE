@@ -6,16 +6,20 @@ const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
-app.use(session({
-    secret : "SuperProject",
+app.use(session({    
+    secret: 'SuperProject',
+    cookie: {
+        sameSite: 'none', 
+        secure: true,
+    },
+    saveUninitialized: false,
+    resave: false,
 }))
 
-app.use(cors(
-    {
-        origin: 'http://localhost:5173',
-        credentials: true
-    }
-));
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+}));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
