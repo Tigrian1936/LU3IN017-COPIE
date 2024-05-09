@@ -5,7 +5,7 @@ import axios from 'axios';
 function ClickableUserProfile(props) {
 
     const currentUser = useContext(UserContext);
-
+    
     const ApproveUser = () => {
         axios.post(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
@@ -20,7 +20,7 @@ function ClickableUserProfile(props) {
         if(!currentUser.is_admin){return}
         axios.put(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
-                console.log(response);
+                props.setUpToDate(true);
             })
             .catch((error) => {
                 console.log(error)
@@ -30,7 +30,7 @@ function ClickableUserProfile(props) {
     const DeleteUser = () => {
         axios.delete(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
-                console.log(response);
+                props.setUpToDate(true);
             })
             .catch((error) => {
                 console.log(error)

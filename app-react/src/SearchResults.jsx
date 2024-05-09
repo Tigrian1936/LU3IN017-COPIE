@@ -56,10 +56,10 @@ function SearchResults(props) {
         <div>
             <h1>Search Results</h1>
             {props.query.returnType === SearchReturnType.THREAD ?
-                <ThreadList threads={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>
+                <ThreadList threads={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId} setUpToDate = {setUpToDate}/>
                 : null}
             {props.query.returnType === SearchReturnType.USER ?
-                <UserList users={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>
+                <UserList users={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId} setUpToDate = {setUpToDate}/>
                 : null}
             {props.query.returnType === SearchReturnType.MESSAGE ?
                 <MessageList messages={results} setUpToDate = {setUpToDate} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId}/>

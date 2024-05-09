@@ -14,7 +14,7 @@ function ThreadList (props) {
   }
   return (<div className="message-list">
     {props.threads.map((thread, index) => (
-      <ThreadTitle key = {index} title = {thread.title} threadId = {thread._id} switchToThread = {switchToThread}/>
+      <ThreadTitle key = {index} title = {thread.title} threadId = {thread._id} switchToThread = {switchToThread} setUpToDate = {props.setUpToDate}/>
     ))}
   </div>);
 }

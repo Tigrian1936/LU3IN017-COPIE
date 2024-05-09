@@ -23,7 +23,7 @@ function AdminUserApproval(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
 
-
+    const [upToDate, setUpToDate] = useState(false);
     const getNonApprovedUsersFromDB = () => {
         if(!user.is_admin){return null;}
         axios.get(`${GetUrl()}/users`,{withCredentials: true, params: { queryType : UsersQueryType.NONAPPROVED}}).then((response) => {
@@ -44,7 +44,8 @@ function AdminUserApproval(props) {
     useEffect(() => {
         setLoadingData(LoadingStates.LOADING);
         getNonApprovedUsersFromDB();
-    }, []);
+        setUpToDate(false);
+    }, [upToDate]);
 
     const [usersToApprove, setUsersToApprove] = useState(null);
     if(loadingData === LoadingStates.LOADING){
@@ -55,7 +56,7 @@ function AdminUserApproval(props) {
     }
     return (
         <div className="thread-recommandation-container">
-            <UserList users={usersToApprove} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId}/>
+            <UserList users={usersToApprove} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId} setUpToDate = {setUpToDate}/>
         </div>);
 }
 

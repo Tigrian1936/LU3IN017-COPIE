@@ -24,7 +24,7 @@ function ThreadRecommendation(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
 
-
+    const [upToDate, setUpToDate] = useState(false);
     const getRecommendationsFromDB = () => {
         axios.get(`${GetUrl()}/threads`,{params: {queryType : queryType, count : displayCount}}, {withCredentials: true}).then((response) => {
             if (response.status === 200) {
@@ -43,7 +43,8 @@ function ThreadRecommendation(props) {
     useEffect(() => {
         setLoadingData(LoadingStates.LOADING);
         getRecommendationsFromDB();
-    }, [queryType, displayCount]);
+        setUpToDate(false);
+    }, [queryType, displayCount, upToDate]);
  
     const [recommendations, setRecommendations] = useState(null);
     if(loadingData === LoadingStates.LOADING || loadingData === LoadingStates.IDLE){
@@ -51,7 +52,7 @@ function ThreadRecommendation(props) {
     }
     return (
         <div className="thread-recommandation-container">
-            <ThreadList threads={recommendations} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId}/>
+            <ThreadList threads={recommendations} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId} setUpToDate = {setUpToDate}/>
         </div>);
 }
 

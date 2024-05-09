@@ -70,7 +70,7 @@ function MessageComponent (props){
   }
 
   return (<div className="message">
-    <ClickableUserProfile user = {user} switchToProfile = {props.switchToProfile}/>
+    <ClickableUserProfile user = {user} switchToProfile = {props.switchToProfile} setUpToDate = {props.setUpToDate}/>
     <p>{props.text}</p>
     <div className="message-details">
       <span className="user-id">{user.username}</span> 

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import ClickableUserProfile from './ClickableUserProfile';
 import MessageList from './MessageList';
 import { useState } from 'react';
 import axios from 'axios';

@@ -15,7 +15,7 @@ function UserList(props) {
         <div>
             <h1>Users</h1>
             {users.map((user, index) => (
-                <ClickableUserProfile key={index} user={{id : user._id, username : user.username, approved : user.approved, is_admin : user.is_admin}} switchToProfile={SwitchToProfile}/>
+                <ClickableUserProfile key={index} user={{id : user._id, username : user.username, approved : user.approved, is_admin : user.is_admin}} switchToProfile={SwitchToProfile} setUpToDate = {props.setUpToDate}/>
             ))}
             
         </div>
