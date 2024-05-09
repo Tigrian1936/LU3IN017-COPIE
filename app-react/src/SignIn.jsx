@@ -14,10 +14,11 @@ function Signin (props) {
         const admin  = document.getElementById("signin_admin").checked;
         if(pass1 === pass2){
             axios.post(`${GetUrl()}/users`, {
+                params : {
                 login: login,
                 password: pass1,
                 admin : admin
-            }, {withCredentials: true})
+            }}, {withCredentials: true})
                 .then((response) => {
                     if (response.status === 200) {
                         setWaitingApproval(true)
