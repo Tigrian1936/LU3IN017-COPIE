@@ -29,7 +29,10 @@ function MessageComponent (props){
         setUser({username: "User Deleted", id: -1})
         return;
       }
-      console.log(user._id)
+      console.log("user.is_admin" + user.is_admin)
+      console.log("id" + connectedUser.id === id);
+      console.log("notServer" +  id !== 0);
+      console.log("Tout" + (user.is_admin || id === connectedUser.id) && id !== 0)
       setUser({username: user.username, id: user._id, approved: user.approved, is_admin: user.is_admin})
     })
     .catch((error) => {
@@ -46,10 +49,6 @@ function MessageComponent (props){
 
   useEffect(() => {
     setLoadingState(LoadingStates.LOADING)
-    console.log("user.is_admin" + user.is_admin)
-    console.log("id" + connectedUser.id === id);
-    console.log("notServer" +  id !== 0);
-    console.log("Tout" + (user.is_admin || id === connectedUser.id) && id !== 0)
     getUserInfosFromDB();}, []
   );
   if(dataLoadingState === LoadingStates.IDLE){
