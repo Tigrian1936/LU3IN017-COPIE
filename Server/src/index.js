@@ -9,8 +9,6 @@ app.use(express.json())
 app.use(session({
     name: 'session',
     keys: ['key1', 'key2'],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: false,
     httpOnly: true,
     signed: true
 }))
