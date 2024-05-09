@@ -41,7 +41,7 @@ app.use((req, res, next) => {
 
 
 app.post('/threads', async (req, res) => {
-    if (!req.session.user) {
+    if (req.session.user === undefined) {
         res.status(401).json({message: "User not connected"});
         return;
     }
