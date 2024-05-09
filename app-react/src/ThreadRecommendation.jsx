@@ -26,8 +26,7 @@ function ThreadRecommendation(props) {
 
 
     const getRecommendationsFromDB = () => {
-        axios.get(`${GetUrl()}/threads`,
-            {queryType : queryType, count : displayCount}, {withCredentials: true}).then((response) => {
+        axios.get(`${GetUrl()}/threads`,{withCredentials: true, params: {queryType : queryType, count : displayCount}}).then((response) => {
             if (response.status === 200) {
                 setLoadingData(LoadingStates.LOADED);  
                 setRecommendations(response.data);
