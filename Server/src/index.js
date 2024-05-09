@@ -6,14 +6,14 @@ const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
-app.use(cookieSession({  
+app.use(cookieSession({
     name: 'session',
     keys: ['Victor', 'Ilian'],
 }))
 
 app.use(cors(
     {
-        origin: '*',
+        origin: 'http://localhost:5173',
         credentials: true
     }
 ));
