@@ -14,11 +14,11 @@ function Signin(props) {
         const pass2 = document.getElementById("signin_mdp2").value;
         const admin = document.getElementById("signin_admin").checked;
         if (pass1 === pass2) {
-            axios.post(`${GetUrl()}/users`, {
+            axios.post(`/users`, {
                 login: login,
                 password: pass1,
                 admin: admin
-            }, {withCredentials: true})
+            }, )
                 .then((response) => {
                     if (response.status === 200) {
                         setWaitingApproval(true)

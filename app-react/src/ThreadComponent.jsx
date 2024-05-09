@@ -21,7 +21,7 @@ function ThreadComponent(props){
 
   const getMessagesFromDB = () =>{
     console.log(props.id);
-    axios.get(`${GetUrl()}/threads/${props.id}`, {withCredentials: true}).then((response) => {
+    axios.get(`/threads/${props.id}`, ).then((response) => {
       if (response.status === 200) {
         setLoading(LoadingStates.LOADED);
         setMessages(response.data.messages);

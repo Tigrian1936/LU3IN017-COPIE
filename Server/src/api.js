@@ -1,4 +1,4 @@
-const {ObjectId} = require('mongodb');
+const { ObjectId } = require('mongodb');
 
 
 const UsersQueryType = {
@@ -24,8 +24,8 @@ function convertToObjectId(id) {
 //Add a user to the database, used in sign in.
 async function CreateUser(db, username, password, admin) {
     //Query username for unicity.
-    const query = {username: username};
-    const options = {projection: {_id: 1}};
+    const query = { username: username };
+    const options = { projection: { _id: 1 } };
     const data = await db.collection('Users').findOne(query, options);
     return new Promise((resolve, reject) => {
         if (data != null) {
@@ -47,8 +47,8 @@ async function CreateUser(db, username, password, admin) {
 //Query the messsages of a thread of given id
 async function GetThreadMessages(db, thread_id) {
     return new Promise((resolve, reject) => {
-        const query = {thread_id: convertToObjectId(thread_id)};
-        const options = {projection: {_id: 1, thread_id: 1, text: 1, user_id: 1, publish_date: 1, is_admin: 1}};
+        const query = { thread_id: convertToObjectId(thread_id) };
+        const options = { projection: { _id: 1, thread_id: 1, text: 1, user_id: 1, publish_date: 1, is_admin: 1 } };
         const messages = db.collection('Messages').find(query, options).toArray();
         if (messages != null) {
             resolve(messages);
@@ -61,11 +61,11 @@ async function GetThreadMessages(db, thread_id) {
 //Query threads sorted y date, and return the first n threads of the query
 async function GetFirstNThreadsByDate(db, n, is_admin) {
     return new Promise((resolve, reject) => {
-        if(is_admin){
+        if (is_admin) {
             const query = {};
             const options = {
-                projection: {_id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1},
-                sort: {creation_date: 1},
+                projection: { _id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1 },
+                sort: { creation_date: 1 },
                 limit: n
             };
             const result = db.collection('Threads').find(query, options).toArray();
@@ -75,11 +75,11 @@ async function GetFirstNThreadsByDate(db, n, is_admin) {
                 reject("No threads found");
             }
         }
-        else{
-            const query = {is_admin: false};
+        else {
+            const query = { is_admin: false };
             const options = {
-                projection: {_id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1},
-                sort: {creation_date: 1},
+                projection: { _id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1 },
+                sort: { creation_date: 1 },
                 limit: n
             };
             const result = db.collection('Threads').find(query, options).toArray();
@@ -92,14 +92,44 @@ async function GetFirstNThreadsByDate(db, n, is_admin) {
     });
 }
 
+async function PatchUser(db, connectedUser, user_id, field, value) {
+    var reason = "";
+    switch (field) {
+        case "approved":
+        case "is_admin":
+            if (connectedUser.is_admin) {
+                return PatchUserField(db, user_id, field, value);
+            }
+            reason = "User not admin";
+            break;
+        case "username":
+        case "password":
+            if (convertToObjectId(connectedUser.id) === convertToObjectId(user_id)) {
+                return PatchUserField(db, user_id, field, value);
+            }
+            reason = "Cannot change another user's username or password";
+            break;
+        case "register_date":
+            reason = "Cannot change register date";
+            break;
+        default:
+            reason = "Invalid field";
+            break;
+    }
+
+    return new Promise((resolve, reject) => {
+        reject(reason);
+    });
+}
+
 //Add message by user of user_id to the thread of thread id in the database
 async function CreateMessage(db, thread_id, user_id, text) {
     return new Promise((resolve, reject) => {
-        const threadQuery = {_id: convertToObjectId(thread_id)};
-        const threadOptions = {projection: {_id: 0, original_poster_id: 1, is_admin: 1}};
+        const threadQuery = { _id: convertToObjectId(thread_id) };
+        const threadOptions = { projection: { _id: 0, original_poster_id: 1, is_admin: 1 } };
         db.collection('Threads').findOne(threadQuery, threadOptions).then((thread) => {
-            const query = {_id: convertToObjectId(user_id)};
-            const options = {projection: {_id: 0, username: 1}};
+            const query = { _id: convertToObjectId(user_id) };
+            const options = { projection: { _id: 0, username: 1 } };
             const user = db.collection('Users').findOne(query, options);
             const message = {
                 thread_id: convertToObjectId(thread_id),
@@ -122,8 +152,8 @@ async function CreateMessage(db, thread_id, user_id, text) {
 
 async function GetUser(db, user_id) {
     return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(user_id)};
-        const options = {projection: {_id: 1, username: 1, register_date: 1, is_admin: 1, approved: 1}};
+        const query = { _id: convertToObjectId(user_id) };
+        const options = { projection: { _id: 1, username: 1, register_date: 1, is_admin: 1, approved: 1 } };
         const user = db.collection('Users').findOne(query, options);
         if (user != null) {
             resolve(user);
@@ -133,10 +163,10 @@ async function GetUser(db, user_id) {
     });
 }
 
-async function PromoteUser(db, user_id) {
+async function PatchUserField(db, user_id, field, value) {
     return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(user_id)};
-        const update = {$set: {is_admin: true}};
+        const query = { _id: convertToObjectId(user_id) };
+        const update = { $set: { [field] : value } };
         db.collection('Users').updateOne(query, update).then(() => {
             resolve();
         }).catch((err) => {
@@ -147,19 +177,19 @@ async function PromoteUser(db, user_id) {
 
 async function GetUserMessages(db, user_id, is_admin) {
     return new Promise((resolve, reject) => {
-        if(is_admin){
-            const query2 = {user_id: convertToObjectId(user_id)};
-            const options2 = {projection: {_id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1}};
+        if (is_admin) {
+            const query2 = { user_id: convertToObjectId(user_id) };
+            const options2 = { projection: { _id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1 } };
             const messages = db.collection('Messages').find(query2, options2).toArray();
             if (messages != null) {
                 resolve(messages);
             } else {
                 reject("User not found");
-            }   
+            }
         }
-        else{
-            const query2 = {user_id: convertToObjectId(user_id), is_admin: false};
-            const options2 = {projection: {_id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1}};
+        else {
+            const query2 = { user_id: convertToObjectId(user_id), is_admin: false };
+            const options2 = { projection: { _id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1 } };
             const messages = db.collection('Messages').find(query2, options2).toArray();
             if (messages != null) {
                 resolve(messages);
@@ -170,25 +200,14 @@ async function GetUserMessages(db, user_id, is_admin) {
     });
 }
 
-async function ApproveUser(db, user_id) {
-    return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(user_id)};
-        const update = {$set: {approved: true}};
-        db.collection('Users').updateOne(query, update).then(() => {
-            resolve();
-        }).catch((err) => {
-            reject(err);
-        });
-    });
-}
 
 async function CreateServerMessage(db, thread_id, user_id, title, is_admin) {
     return new Promise((resolve, reject) => {
-        const query = {_id: user_id};
-        const options = {projection: {_id: 0, username: 1}};
+        const query = { _id: user_id };
+        const options = { projection: { _id: 0, username: 1 } };
         const user = db.collection('Users').findOne(query, options);
         const text = `Thread ${title} created by ${user.username} (${new Date(Date.now()).toLocaleDateString()})`;
-        const message = {thread_id: thread_id, user_id: 0, text: text, publish_date: Date.now(), is_admin: is_admin};
+        const message = { thread_id: thread_id, user_id: 0, text: text, publish_date: Date.now(), is_admin: is_admin };
         db.collection('Messages').insertOne(message).then(() => {
             resolve();
         }).catch((err) => {
@@ -199,8 +218,8 @@ async function CreateServerMessage(db, thread_id, user_id, title, is_admin) {
 }
 
 async function CreateThread(db, original_poster_id, title, is_admin) {
-    const query = {original_poster_id: original_poster_id, title: title, is_admin: is_admin}
-    const options = {projection: {_id: 1}};
+    const query = { original_poster_id: original_poster_id, title: title, is_admin: is_admin }
+    const options = { projection: { _id: 1 } };
     const data = await db.collection('Threads').findOne(query, options);
     return new Promise((resolve, reject) => {
         if (data != null) {
@@ -220,8 +239,8 @@ async function CreateThread(db, original_poster_id, title, is_admin) {
 
 async function GetNonApprovedUsers(db) {
     return new Promise((resolve, reject) => {
-        const query = {approved: false};
-        const options = {projection: {_id: 1, username: 1}};
+        const query = { approved: false };
+        const options = { projection: { _id: 1, username: 1 } };
         const users = db.collection('Users').find(query, options).toArray();
         if (users != null) {
             resolve(users);
@@ -242,10 +261,10 @@ async function GetUsersByQuery(db, queryType, count) {
 
 async function DeleteUser(db, user_id) {
     return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(user_id)};
+        const query = { _id: convertToObjectId(user_id) };
         db.collection('Users').deleteOne(query).then(() => {
-                resolve();
-            }
+            resolve();
+        }
         ).catch(() => {
             reject()
         });
@@ -254,7 +273,7 @@ async function DeleteUser(db, user_id) {
 
 async function DeleteMessage(db, message_id) {
     return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(message_id)};
+        const query = { _id: convertToObjectId(message_id) };
         db.collection('Messages').deleteOne(query).then(() => {
             resolve();
         }).catch(() => {
@@ -265,9 +284,9 @@ async function DeleteMessage(db, message_id) {
 
 async function DeleteThread(db, thread_id) {
     return new Promise((resolve, reject) => {
-        const queryMessages = {thread_id: convertToObjectId(thread_id)};
+        const queryMessages = { thread_id: convertToObjectId(thread_id) };
         db.collection('Messages').deleteMany(queryMessages).then(() => {
-            const query = {_id: convertToObjectId(thread_id)};
+            const query = { _id: convertToObjectId(thread_id) };
             db.collection('Threads').deleteOne(query).then(() => {
                 resolve();
             }).catch(() => {
@@ -291,7 +310,7 @@ async function Search(db, query, is_admin) {
         case SearchReturnType.MESSAGE:
             return SearchMessages(db, query.options, is_admin);
         default:
-            return {message: "Unknown search type"};
+            return { message: "Unknown search type" };
     }
 }
 
@@ -308,12 +327,12 @@ async function SearchThreads(db, options, is_admin) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({title: {$regex: option.value}});
+                            mainQueries.push({ title: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             if (option.value.from != null && option.value.up_to != null) {
-                                mainQueries.push({creation_date: {$gte: option.value.from}});
-                                mainQueries.push({creation_date: {$lte: option.value.up_to}});
+                                mainQueries.push({ creation_date: { $gte: option.value.from } });
+                                mainQueries.push({ creation_date: { $lte: option.value.up_to } });
                             }
                             break;
                         default:
@@ -324,7 +343,7 @@ async function SearchThreads(db, options, is_admin) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            userQueries.push({username: {$regex: option.value}});
+                            userQueries.push({ username: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             userQueries.push({
@@ -342,7 +361,7 @@ async function SearchThreads(db, options, is_admin) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            messageQueries.push({text: {$regex: option.value}});
+                            messageQueries.push({ text: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             messageQueries.push({
@@ -362,22 +381,22 @@ async function SearchThreads(db, options, is_admin) {
                     return;
             }
         }
-        
-        if(!is_admin){
-            mainQueries.push({is_admin: false});
+
+        if (!is_admin) {
+            mainQueries.push({ is_admin: false });
         }
 
         if (userQueries.length > 0) {
-            db.collection('Users').find({$and: userQueries}).toArray().then((users) => {
-                users.forEach(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
+            db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
+                users.forEach(user => mainQueries.push({ original_poster_id: convertToObjectId(user._id) }));
                 if (messageQueries.length > 0) {
-                    db.collection('Messages').find({$and: messageQueries}).toArray().then((messages) => {
-                        messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                    db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
+                        messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.thread_id) }));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
                         }
-                        const query = {$and: mainQueries};
+                        const query = { $and: mainQueries };
                         const result = db.collection('Threads').find(query).toArray();
                         if (result != null) {
                             resolve(result);
@@ -392,7 +411,7 @@ async function SearchThreads(db, options, is_admin) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Threads').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -405,13 +424,13 @@ async function SearchThreads(db, options, is_admin) {
             });
         } else {
             if (messageQueries.length > 0) {
-                db.collection('Messages').find({$and: messageQueries}).toArray().then((messages) => {
-                    messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.thread_id)}));
+                db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
+                    messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.thread_id) }));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Threads').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -426,7 +445,7 @@ async function SearchThreads(db, options, is_admin) {
                     reject("No queries found");
                     return
                 }
-                const query = {$and: mainQueries};
+                const query = { $and: mainQueries };
                 const result = db.collection('Threads').find(query).toArray();
                 if (result != null) {
                     resolve(result);
@@ -448,7 +467,7 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            threadQueries.push({title: {$regex: option.value}});
+                            threadQueries.push({ title: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             threadQueries.push({
@@ -466,7 +485,7 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({username: {$regex: option.value}});
+                            mainQueries.push({ username: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             mainQueries.push({
@@ -484,7 +503,7 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            messageQueries.push({text: {$regex: option.value}});
+                            messageQueries.push({ text: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             messageQueries.push({
@@ -507,16 +526,16 @@ async function SearchUsers(db, options) {
 
 
         if (threadQueries.length > 0) {
-            db.collection('Threads').find({$and: threadQueries}).toArray().then((threads) => {
-                threads.forEach(thread => mainQueries.push({_id: convertToObjectId(thread.original_poster_id)}));
+            db.collection('Threads').find({ $and: threadQueries }).toArray().then((threads) => {
+                threads.forEach(thread => mainQueries.push({ _id: convertToObjectId(thread.original_poster_id) }));
                 if (messageQueries.length > 0) {
-                    db.collection('Messages').find({$and: messageQueries}).toArray().then((messages) => {
-                        messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                    db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
+                        messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.user_id) }));
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
                         }
-                        const query = {$and: mainQueries};
+                        const query = { $and: mainQueries };
                         const result = db.collection('Users').find(query).toArray();
                         if (result != null) {
                             resolve(result);
@@ -531,7 +550,7 @@ async function SearchUsers(db, options) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Users').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -544,13 +563,13 @@ async function SearchUsers(db, options) {
             });
         } else {
             if (messageQueries.length > 0) {
-                db.collection('Messages').find({$and: messageQueries}).toArray().then((messages) => {
-                    messages.forEach(message => mainQueries.push({_id: convertToObjectId(message.user_id)}));
+                db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
+                    messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.user_id) }));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Users').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -565,7 +584,7 @@ async function SearchUsers(db, options) {
                     reject("No queries found");
                     return
                 }
-                const query = {$and: mainQueries};
+                const query = { $and: mainQueries };
                 const result = db.collection('Users').find(query).toArray();
                 if (result != null) {
                     resolve(result);
@@ -587,7 +606,7 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            threadQueries.push({title: {$regex: option.value}});
+                            threadQueries.push({ title: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             threadQueries.push({
@@ -605,7 +624,7 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            userQueries.push({username: {$regex: option.value}});
+                            userQueries.push({ username: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             userQueries.push({
@@ -623,7 +642,7 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({text: {$regex: option.value}});
+                            mainQueries.push({ text: { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             mainQueries.push({
@@ -643,23 +662,23 @@ async function SearchMessages(db, options, is_admin) {
                     return;
             }
         }
-        
-        if(!is_admin){
-            mainQueries.push({is_admin: false});
+
+        if (!is_admin) {
+            mainQueries.push({ is_admin: false });
         }
-        
+
         if (threadQueries.length > 0) {
-            db.collection('Threads').find({$and: threadQueries}).toArray().then((threads) => {
-                threads.forEach(thread => mainQueries.push({thread_id: convertToObjectId(thread._id)}));
+            db.collection('Threads').find({ $and: threadQueries }).toArray().then((threads) => {
+                threads.forEach(thread => mainQueries.push({ thread_id: convertToObjectId(thread._id) }));
                 if (userQueries.length > 0) {
-                    db.collection('Users').find({$and: userQueries}).toArray().then((users) => {
-                        users.forEach(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+                    db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
+                        users.forEach(user => mainQueries.push({ user_id: convertToObjectId(user._id) }));
 
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
                         }
-                        const query = {$and: mainQueries};
+                        const query = { $and: mainQueries };
                         const result = db.collection('Messages').find(query).toArray();
                         if (result != null) {
                             resolve(result);
@@ -674,7 +693,7 @@ async function SearchMessages(db, options, is_admin) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Messages').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -687,13 +706,13 @@ async function SearchMessages(db, options, is_admin) {
             });
         } else {
             if (userQueries.length > 0) {
-                db.collection('Users').find({$and: userQueries}).toArray().then((users) => {
-                    users.forEach(user => mainQueries.push({user_id: convertToObjectId(user._id)}));
+                db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
+                    users.forEach(user => mainQueries.push({ user_id: convertToObjectId(user._id) }));
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
                     }
-                    const query = {$and: mainQueries};
+                    const query = { $and: mainQueries };
                     const result = db.collection('Messages').find(query).toArray();
                     if (result != null) {
                         resolve(result);
@@ -708,7 +727,7 @@ async function SearchMessages(db, options, is_admin) {
                     reject("No queries found");
                     return
                 }
-                const query = {$and: mainQueries};
+                const query = { $and: mainQueries };
                 const result = db.collection('Messages').find(query).toArray();
                 if (result != null) {
                     resolve(result);
@@ -736,9 +755,8 @@ module.exports = {
     DeleteMessage,
     DeleteThread,
     DeleteUser,
-    PromoteUser,
     GetUsersByQuery,
-    ApproveUser,
+    PatchUser,
     CreateUser,
     GetUserMessages,
     GetUser,

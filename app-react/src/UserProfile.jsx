@@ -23,7 +23,7 @@ function UserProfile(props){
         setUser({username: "User Deleted", id: -1})
         return;
     }
-    axios.get(`${GetUrl()}/users/${props.id}`, {is_admin : connectedUser.is_admin}, {withCredentials: true})
+    axios.get(`/users/${props.id}`, )
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       setMessages(response.data.messages);

@@ -9,8 +9,8 @@ function ThreadCreation(props) {
 
     const user = useContext(UserContext);
     const createThread = () => {
-        axios.post(`${GetUrl()}/threads`, {
-            withCredentials: true,
+        axios.post(`/threads`, {
+            
             original_poster_id: user.id,
             title: document.getElementById("title").value,
             is_admin: user.is_admin && document.getElementById("thread_admin").checked

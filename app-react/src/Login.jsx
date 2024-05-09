@@ -15,8 +15,7 @@ function Login(props) {
 
 
     const handleSubmit = () => {
-        axios.post(`${GetUrl()}/authentication/login`, {
-            withCredentials: true,
+        axios.post(`/authentication/login`, {
             login: login,
             password: password
         })

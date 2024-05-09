@@ -26,7 +26,7 @@ function AdminUserApproval(props) {
     const [upToDate, setUpToDate] = useState(false);
     const getNonApprovedUsersFromDB = () => {
         if(!user.is_admin){return null;}
-        axios.get(`${GetUrl()}/users`,{withCredentials: true, params: { queryType : UsersQueryType.NONAPPROVED}}).then((response) => {
+        axios.get(`/users`,{params: { queryType : UsersQueryType.NONAPPROVED}, }).then((response) => {
             if (response.status === 200) {
                 console.log(response.data);
                 setLoadingData(LoadingStates.LOADED);

@@ -10,7 +10,7 @@ function ThreadTitle (props){
      props.switchToThread(props.threadId);
     }
     const handleDelete = (evt) =>{
-      axios.delete(`${GetUrl()}/threads/${props.threadId}`, {withCredentials: true}).then((response) => {
+      axios.delete(`/threads/${props.threadId}`, ).then((response) => {
         if(response.status === 200){
           props.setUpToDate(true);
         }

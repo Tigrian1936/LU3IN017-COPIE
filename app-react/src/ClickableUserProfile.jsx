@@ -7,9 +7,10 @@ function ClickableUserProfile(props) {
     const currentUser = useContext(UserContext);
     
     const ApproveUser = () => {
-        axios.post(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
+        if(!currentUser.is_admin){return}
+        axios.patch(`/users/${props.user.id}`, {field : "approved", value : true, })
             .then((response) => {
-                props.setUpToDate(true);
+                if(response.status === 200)props.setUpToDate(true);
             })
             .catch((error) => {
                 console.log(error)
@@ -18,7 +19,7 @@ function ClickableUserProfile(props) {
     
     const PromoteUser = () => {
         if(!currentUser.is_admin){return}
-        axios.put(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
+        axios.patch(`/users/${props.user.id}`, {field : "is_admin", value : true})
             .then((response) => {
                 props.setUpToDate(true);
             })
@@ -28,7 +29,7 @@ function ClickableUserProfile(props) {
     }
     
     const DeleteUser = () => {
-        axios.delete(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
+        axios.delete(`/users/${props.user.id}`)
             .then((response) => {
                 if(response.status === 200) props.setUpToDate(true);
             })

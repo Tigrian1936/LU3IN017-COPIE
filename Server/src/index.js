@@ -1,27 +1,47 @@
 const express = require('express')
 const app = express();
-const session = require('cookie-session')
+const session = require('express-session')
 const cors = require('cors');
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
+const MongoDBStore = require('connect-mongodb-session')(session);
 const api = require('./api.js');
 app.use(express.json())
 
-// app.use(session({
-//     name: 'session',
-//     keys: ['key1', 'key2'],
-//     httpOnly: true,
-//     signed: true
-// }))
+
+function isConnected(req, res, next) {
+    if (!req.session.user) {
+        res.status(401).json({ message: "User not connected" });
+        return;
+    }
+    next();
+}
+
+function isAdmin(req, res, next) {
+    if (!req.session.user.is_admin) {
+        res.status(401).json({ message: "User not admin" });
+        return;
+    }
+    next();
+}
 
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    methods: ['GET', 'POST', 'PATCH', 'DELETE']
 }));
 
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
 
+var store = new MongoDBStore({
+    uri: dburl,
+    databaseName: 'DatabaseProjet',
+    collection: 'Sessions'
+});
+
+store.on('error', function (error) {
+    console.log(error);
+});
 
 client
     .connect()
@@ -31,219 +51,164 @@ client
     .catch((err) => {
         console.error('Error connecting to MongoDB:', err);
     });
-
+app.use(session({
+    secret: 'secret',
+    secure: false,
+    cookie: {
+        maxAge: 1000 * 60 * 10// 10 minutes
+    },
+    store: store,
+    saveUninitialized: true
+}))
 app.use((req, res, next) => {
     req.db = client.db('DatabaseProjet'); // Attach the database to the request
     next();
 });
 
 
-app.post('/threads', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    api.CreateThread(req.db, req.body.original_poster_id, req.body.title, req.body.is_admin).then((thread_id) => {
-        api.CreateServerMessage(req.db, thread_id.insertedId, req.body.original_poster_id, req.body.title, req.body.is_admin)
-        res.status(200).json({thread_id: thread_id.insertedId});
+app.post('/threads', isConnected, async (req, res) => {
+    api.CreateThread(req.db, req.body.original_poster_id, req.body.title, req.session.user.is_admin && req.body.is_admin).then((thread_id) => {
+        api.CreateServerMessage(req.db, thread_id.insertedId, req.body.original_poster_id, req.body.title, req.session.user.is_admin && req.body.is_admin)
+        res.status(200).json({ thread_id: thread_id.insertedId });
     })
         .catch(reason => {
-            res.status(400).json({message: reason.message});
+            res.status(400).json({ message: reason.message });
         });
 });
 
-app.get('/threads/:thread_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.get('/threads/:thread_id', isConnected, async (req, res) => {
     api.GetThreadMessages(req.db, req.params.thread_id).then((messages) => {
-        res.status(200).json({messages: messages});
+        res.status(200).json({ messages: messages });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     })
 });
 
-app.post('/threads/:thread_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.post('/threads/:thread_id', isConnected, async (req, res) => {
     api.CreateMessage(req.db, req.params.thread_id, req.body.user_id, req.body.text).then(() => {
-        res.status(200).json({message: "Message created"});
+        res.status(200).json({ message: "Message created" });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     });
 });
 
-app.get('/users/:user_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.get('/users/:user_id', isConnected, async (req, res) => {
     if (req.params.user_id === "0") {
-        res.status(200).json({user: {username: "Server", logo: ""}, messages: []});
+        res.status(200).json({ user: { username: "Server", logo: "" }, messages: [] });
         return;
     }
     api.GetUser(req.db, req.params.user_id).then((user) => {
-        api.GetUserMessages(req.db, req.params.user_id, req.params.is_admin).then((messages) => {
-            res.status(200).json({user: user, messages: messages});
+        api.GetUserMessages(req.db, req.params.user_id, req.session.user.is_admin).then((messages) => {
+            res.status(200).json({ user: user, messages: messages });
         }).catch(reason => {
-            res.status(400).json({message: reason.message});
+            res.status(400).json({ message: reason.message });
         })
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     })
 });
 
-app.put('/users/:user_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    api.PromoteUser(req.db, req.params.user_id).then(() => {
-        res.status(200).json({message: "User promoted"});
+app.patch('/users/:user_id', isConnected, async (req, res) => {
+    api.PatchUser(req.db, req.session.user, req.params.user_id, req.body.field, req.body.value).then(() => {
+        res.status(200).json({ message: "User patched" });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     });
 });
 
 
-app.get('/threads', async (req, res) => {
-    // if (req.session.user === undefined) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    api.GetThreadByQuery(req.db, req.query.queryType, req.query.count,req.query.is_admin).then((threads) => {
+app.get('/threads', isConnected, async (req, res) => {
+    api.GetThreadByQuery(req.db, req.query.queryType, req.query.count, req.session.user.is_admin).then((threads) => {
         res.status(200).json(threads);
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     })
 });
 
-app.delete('/users/:user_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    // if (req.session.user.is_admin === false) {
-    //     res.status(401).json({message: "User not admin"});
-    //     return;
-    // }
+app.delete('/users/:user_id', isConnected, isAdmin, async (req, res) => {
     api.DeleteUser(req.db, req.params.user_id).then(() => {
-        res.status(200).json({message: "User deleted"});
+        res.status(200).json({ message: "User deleted" });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     });
 });
 
-app.delete('/threads/:thread_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.delete('/threads/:thread_id', isConnected, async (req, res) => {
     api.DeleteThread(req.db, req.params.thread_id).then(() => {
-        res.status(200).json({message: "Thread deleted"});
+        res.status(200).json({ message: "Thread deleted" });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     });
 });
 
-app.delete('/messages/:message_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.delete('/messages/:message_id', isConnected, async (req, res) => {
     api.DeleteMessage(req.db, req.params.message_id).then(() => {
-        res.status(200).json({message: "Message deleted"});
+        res.status(200).json({ message: "Message deleted" });
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     });
 });
 
 app.post('/authentication/login', async (req, res) => {
     const collection = req.db.collection('Users');
-    const query = {username: req.body.login, password: req.body.password};
-    const options = {projection: {_id: 1, username: 1, password: 1, register_date: 1, is_admin: 1, approved: 1}};
+    const query = { username: req.body.login, password: req.body.password };
+    const options = { projection: { _id: 1, username: 1, password: 1, register_date: 1, is_admin: 1, approved: 1 } };
     const result = await collection.findOne(query, options);
     if (result != null) {
         if (result.approved === false) {
-            res.status(401).json({message: "User account waiting admin for approval"});
+            res.status(401).json({ message: "User account waiting admin for approval" });
             return;
         }
-//        req.session.user = result;
-        res.status(200).json(result);
-        //console.log(req.session.user);
+
+        req.session.regenerate(function (err) {
+            if (err) next(err)
+
+            req.session.user = result;
+
+            req.session.save(function (err) {
+                if (err) return next(err)
+                console.log(req.session.user);
+                res.status(200).json(result);
+            })
+        })
     } else {
-        const queryName = {username: req.body.login};
+        const queryName = { username: req.body.login };
         const resultName = await collection.findOne(queryName, options);
         if (resultName != null) {
-            res.status(401).json({message: "Wrong password"});
+            res.status(401).json({ message: "Wrong password" });
         } else {
-            res.status(401).json({message: "User not found"});
+            res.status(401).json({ message: "User not found" });
         }
     }
 });
 
-app.get('/authentication/logout', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-//    req.session.destroy();
-    res.status(200).json({message: "Logged out"});
+app.get('/authentication/logout', isConnected, async (req, res) => {
+    req.session.destroy();
+    res.status(200).json({ message: "Logged out" });
 });
 
-app.get('/search', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    api.Search(req.db, req.query, req.is_admin).then((results) => {
+app.get('/search', isConnected, async (req, res) => {
+    api.Search(req.db, req.query, req.session.user.is_admin).then((results) => {
         res.status(200).json(results);
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     })
 });
 
-app.post('/users/:user_id', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
-    // if (req.session.user.is_admin === false) {
-    //     res.status(401).json({message: "User not admin"});
-    //     return;
-    // }
-    api.ApproveUser(req.db, req.params.user_id).then(() => {
-        res.status(200).json({message: "User approved"});
-    }).catch(reason => {
-        res.status(400).json({message: reason.message});
-    });
-});
-
-app.get('/users', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
+app.get('/users', isConnected, async (req, res) => {
     api.GetUsersByQuery(req.db, req.query.queryType).then((users) => {
         res.status(200).json(users);
     }).catch(reason => {
-        res.status(400).json({message: reason.message});
+        res.status(400).json({ message: reason.message });
     })
 });
 
 app.post('/users', async (req, res) => {
-    // if (!req.session.user) {
-    //     res.status(401).json({message: "User not connected"});
-    //     return;
-    // }
     api.CreateUser(req.db, req.body.login, req.body.password, req.body.admin).then((user_id) => {
-        res.status(200).json({user_id: user_id.insertedId});
+        res.status(200).json({ user_id: user_id.insertedId });
     })
         .catch(reason => {
-            res.status(400).json({message: reason.message});
+            res.status(400).json({ message: reason.message });
         });
 });
 

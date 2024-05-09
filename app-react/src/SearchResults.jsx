@@ -21,12 +21,11 @@ function SearchResults(props) {
     const setDisplayDataId = props.setDisplayDataId;
     const connectedUser = useContext(UserContext);
     const getQueryFromServer = () => {
-        axios.get(`${GetUrl()}/search`, {withCredentials: true,
+        axios.get(`/search`, {
             params: {
                 returnType: props.query.returnType,
                 options: props.query.options
-            },
-            is_admin: connectedUser.is_admin
+            }
         })
             .then((response) => {
                 if (response.status === 200) {

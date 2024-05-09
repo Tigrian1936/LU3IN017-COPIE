@@ -20,7 +20,7 @@ function ForumPage (props) {
   }
 
   const logOut = (evt)=>{
-    axios.get(`${GetUrl()}/authentication/logout`, {withCredentials: true})
+    axios.get(`/authentication/logout`, )
     .then((response) => {
       if(response.status === 200){
         setConnectedUser(null);
@@ -36,7 +36,8 @@ function ForumPage (props) {
 
   const createThreadDisplay = (evt)=>{setDisplay(DisplayTypes.CREATE_THREAD)}
 
-  
+  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.withCredentials = true;
 
   if(user != null){
     return (
