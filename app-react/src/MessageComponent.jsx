@@ -29,10 +29,6 @@ function MessageComponent (props){
         setUser({username: "User Deleted", id: -1})
         return;
       }
-      console.log("user.is_admin" + user.is_admin)
-      console.log("id" + connectedUser.id === id);
-      console.log("notServer" +  id !== 0);
-      console.log("Tout" + (user.is_admin || id === connectedUser.id) && id !== 0)
       setUser({username: user.username, id: user._id, approved: user.approved, is_admin: user.is_admin})
     })
     .catch((error) => {
@@ -79,7 +75,7 @@ function MessageComponent (props){
       <span className="user-id">{user.username}</span> 
       <span className="message-date">{props.date}</span>  
       <span className="message-index">{props.index + 1}</span>
-      {(user.is_admin || id === connectedUser.id) && id !== 0 ? <button onClick={evt => deleteMessage()}>Delete</button> : null}
+      {(connectedUser.is_admin || id === connectedUser.id) && id !== 0 ? <button onClick={evt => deleteMessage()}>Delete</button> : null}
     </div> 
   </div>);
 }
