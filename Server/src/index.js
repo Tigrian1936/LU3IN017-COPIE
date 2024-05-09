@@ -20,6 +20,13 @@ app.use(cors({
     credentials: true,
 }));
 
+app.use((req, res, next) => {
+    console.log(req.method, req.url);
+    console.log(req.session);
+    console.log(req.session.user);
+    next();
+});
+
 const dburl = "mongodb+srv://victorlocherer:blQqG6A9ZpIX4p3Q@clusterprojet.etclz03.mongodb.net/"
 const client = new MongoClient(dburl);
 
