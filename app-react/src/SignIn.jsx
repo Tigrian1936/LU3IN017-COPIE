@@ -1,24 +1,24 @@
-import { useState } from 'react'
+import {useState} from 'react'
 import GetUrl from "./Url.jsx";
 import axios from 'axios'
-function Signin (props) {
-    
+
+function Signin(props) {
+
     const [passOK, setPassOK] = useState(true);
     const [waitingApproval, setWaitingApproval] = useState(false);
-    
+
     const submissionHandler = (evt) => {
         evt.preventDefault();
         const login = document.getElementById("signin_login").value;
         const pass1 = document.getElementById("signin_mdp1").value;
         const pass2 = document.getElementById("signin_mdp2").value;
-        const admin  = document.getElementById("signin_admin").checked;
-        if(pass1 === pass2){
+        const admin = document.getElementById("signin_admin").checked;
+        if (pass1 === pass2) {
             axios.post(`${GetUrl()}/users`, {
-                params : {
                 login: login,
                 password: pass1,
-                admin : admin
-            }}, {withCredentials: true})
+                admin: admin
+            }, {withCredentials: true})
                 .then((response) => {
                     if (response.status === 200) {
                         setWaitingApproval(true)
@@ -29,14 +29,13 @@ function Signin (props) {
                 .catch(err => {
                     console.error(err);
                 });
-        }
-        else{
+        } else {
             setPassOK(false);
         }
 
     }
-    
-    if(waitingApproval){
+
+    if (waitingApproval) {
         return (
             <div>
                 <p>Waiting for approval</p>
