@@ -112,7 +112,7 @@ app.put('/users/:user_id', async (req, res) => {
 
 
 app.get('/threads', async (req, res) => {
-    if (!req.session.user) {
+    if (req.session.user === undefined) {
         res.status(401).json({message: "User not connected"});
         return;
     }
