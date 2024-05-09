@@ -225,7 +225,7 @@ async function DeleteUser(db, user_id) {
 }
 
 async function DeleteMessage(db, message_id) {
-    return new Promise((resolve, reject) => {y
+    return new Promise((resolve, reject) => {
         const query = {_id: convertToObjectId(message_id)};
         db.collection('Messages').deleteOne(query).then(() => {
             resolve();
