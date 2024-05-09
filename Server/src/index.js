@@ -10,7 +10,7 @@ app.use(session({
     name: 'session',
     keys: ['key1', 'key2'],
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: true,
+    secure: false,
     httpOnly: true,
     signed: true
 }))
