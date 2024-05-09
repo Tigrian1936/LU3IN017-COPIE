@@ -59,19 +59,35 @@ async function GetThreadMessages(db, thread_id) {
 }
 
 //Query threads sorted y date, and return the first n threads of the query
-async function GetFirstNThreadsByDate(db, n) {
+async function GetFirstNThreadsByDate(db, n, is_admin) {
     return new Promise((resolve, reject) => {
-        const query = {};
-        const options = {
-            projection: {_id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1},
-            sort: {creation_date: 1},
-            limit: n
-        };
-        const result = db.collection('Threads').find(query, options).toArray();
-        if (result != null) {
-            resolve(result);
-        } else {
-            reject("No threads found");
+        if(is_admin){
+            const query = {};
+            const options = {
+                projection: {_id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1},
+                sort: {creation_date: 1},
+                limit: n
+            };
+            const result = db.collection('Threads').find(query, options).toArray();
+            if (result != null) {
+                resolve(result);
+            } else {
+                reject("No threads found");
+            }
+        }
+        else{
+            const query = {is_admin: false};
+            const options = {
+                projection: {_id: 1, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1},
+                sort: {creation_date: 1},
+                limit: n
+            };
+            const result = db.collection('Threads').find(query, options).toArray();
+            if (result != null) {
+                resolve(result);
+            } else {
+                reject("No threads found");
+            }
         }
     });
 }
@@ -202,13 +218,6 @@ async function CreateThread(db, original_poster_id, title, is_admin) {
     });
 }
 
-async function GetThreadByTitle(db, title) {
-    const query = {title: title};
-    const options = {projection: {_id: 0, original_poster_id: 1, creation_date: 1, title: 1, is_admin: 1}};
-    const result = await db.collection('Threads').findOne(query, options);
-    return await result.toArray();
-}
-
 async function GetNonApprovedUsers(db) {
     return new Promise((resolve, reject) => {
         const query = {approved: false};
@@ -273,21 +282,21 @@ async function DeleteThread(db, thread_id) {
 //ça devrait être possible de faire une méthode qui regroupe les 3 méthodes de recherche, ça simplifirait que 
 //d'avoir 3 méthodes similaires (en passant le type d'une option dans le collection de db, on peut rendre les recherches secondaires génériques)
 //Mais bon, j'ai fait comme ça, ça marche aussi, et je me casse pas la tête pour ça (même si c'est plus lourd à maintenir)
-async function Search(db, query) {
+async function Search(db, query, is_admin) {
     switch (query.returnType) {
         case SearchReturnType.THREAD:
-            return SearchThreads(db, query.options);
+            return SearchThreads(db, query.options, is_admin);
         case SearchReturnType.USER:
             return SearchUsers(db, query.options);
         case SearchReturnType.MESSAGE:
-            return SearchMessages(db, query.options);
+            return SearchMessages(db, query.options, is_admin);
         default:
             return {message: "Unknown search type"};
     }
 }
 
 
-async function SearchThreads(db, options) {
+async function SearchThreads(db, options, is_admin) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
         const userQueries = [];
@@ -353,9 +362,10 @@ async function SearchThreads(db, options) {
                     return;
             }
         }
-        console.log(mainQueries);
-        console.log(userQueries);
-        console.log(messageQueries);
+        
+        if(!is_admin){
+            mainQueries.push({is_admin: false});
+        }
 
         if (userQueries.length > 0) {
             db.collection('Users').find({$and: userQueries}).toArray().then((users) => {
@@ -567,7 +577,7 @@ async function SearchUsers(db, options) {
     });
 }
 
-async function SearchMessages(db, options) {
+async function SearchMessages(db, options, is_admin) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
         const threadQueries = [];
@@ -633,6 +643,11 @@ async function SearchMessages(db, options) {
                     return;
             }
         }
+        
+        if(!is_admin){
+            mainQueries.push({is_admin: false});
+        }
+        
         if (threadQueries.length > 0) {
             db.collection('Threads').find({$and: threadQueries}).toArray().then((threads) => {
                 threads.forEach(thread => mainQueries.push({thread_id: convertToObjectId(thread._id)}));
@@ -706,10 +721,10 @@ async function SearchMessages(db, options) {
     });
 }
 
-async function GetThreadByQuery(db, queryType, count) {
+async function GetThreadByQuery(db, queryType, count, is_admin) {
     switch (queryType) {
         case "By-most-recent":
-            return await GetFirstNThreadsByDate(db, count);
+            return await GetFirstNThreadsByDate(db, count, is_admin);
     }
     console.log('Unknown query type');
     return null;

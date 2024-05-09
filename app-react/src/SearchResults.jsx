@@ -2,13 +2,13 @@ import React from "react";
 import GetUrl from "./Url.jsx";
 import axios from 'axios';
 import {SearchReturnType} from "./SearchReturnType.jsx";
-import {SearchQueryType} from "./SearchQueryType.jsx";
 import ThreadList from "./ThreadList.jsx";
 import UserList from "./UserList.jsx";
 import MessageComponent from "./MessageComponent.jsx";
 import MessageList from "./MessageList.jsx";
 import {useEffect} from "react";
-
+import {UserContext} from "./UserContext.jsx";
+import {useContext} from "react";
 function SearchResults(props) {
     const LoadingStates = {
         LOADING : "Loading",
@@ -19,12 +19,14 @@ function SearchResults(props) {
     const [loading, setLoading] = React.useState(LoadingStates.IDLE);
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
+    const connectedUser = useContext(UserContext);
     const getQueryFromServer = () => {
         axios.get(`${GetUrl()}/search`, {withCredentials: true,
             params: {
                 returnType: props.query.returnType,
                 options: props.query.options
-            }
+            },
+            is_admin: connectedUser.is_admin
         })
             .then((response) => {
                 if (response.status === 200) {

@@ -114,7 +114,7 @@ app.get('/threads', async (req, res) => {
     //     res.status(401).json({message: "User not connected"});
     //     return;
     // }
-    api.GetThreadByQuery(req.db, req.query.queryType, req.query.count).then((threads) => {
+    api.GetThreadByQuery(req.db, req.query.queryType, req.query.count,req.query.is_admin).then((threads) => {
         res.status(200).json(threads);
     }).catch(reason => {
         res.status(400).json({message: reason.message});
@@ -199,7 +199,7 @@ app.get('/search', async (req, res) => {
     //     res.status(401).json({message: "User not connected"});
     //     return;
     // }
-    api.Search(req.db, req.query).then((results) => {
+    api.Search(req.db, req.query, req.is_admin).then((results) => {
         res.status(200).json(results);
     }).catch(reason => {
         res.status(400).json({message: reason.message});

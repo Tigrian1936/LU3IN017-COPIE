@@ -23,10 +23,11 @@ function ThreadRecommendation(props) {
     const [displayCount, setDisplayCount] = useState(50)
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
+    const connectedUser = useContext(UserContext);
 
     const [upToDate, setUpToDate] = useState(false);
     const getRecommendationsFromDB = () => {
-        axios.get(`${GetUrl()}/threads`,{params: {queryType : queryType, count : displayCount}}, {withCredentials: true}).then((response) => {
+        axios.get(`${GetUrl()}/threads`,{params: {queryType : queryType, count : displayCount, is_admin : connectedUser.is_admin}}, {withCredentials: true}).then((response) => {
             if (response.status === 200) {
                 setLoadingData(LoadingStates.LOADED);  
                 setRecommendations(response.data);
