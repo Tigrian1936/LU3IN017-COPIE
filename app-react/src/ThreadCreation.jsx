@@ -13,7 +13,7 @@ function ThreadCreation(props) {
             withCredentials: true,
             original_poster_id: user.id,
             title: document.getElementById("title").value,
-            is_admin: user.is_admin && document.getElementById("admin").checked
+            is_admin: user.is_admin && document.getElementById("thread_admin").checked
         })
             .then((response) => {
                 if (response.status === 200) {
@@ -31,7 +31,7 @@ function ThreadCreation(props) {
     if (user.is_admin) {
         return (<div className="thread-creation-fields">
             <label>Titre</label><input id="title"/>
-            <toggle>Admin</toggle>
+            <label htmlFor="thread_admin">Admin</label><input type="checkbox" id="thread_admin"/>
             <button onClick={createThread}> Create</button>
         </div>);
     } else {
