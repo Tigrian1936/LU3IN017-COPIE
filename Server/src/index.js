@@ -1,12 +1,13 @@
 const express = require('express')
 const app = express();
-const session = require('express-session')
+const session = require('cookie-session')
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
 app.use(session({
+    name : 'session',
     secret : 'SuperProjet',
 }))
 
