@@ -1,18 +1,18 @@
 const express = require('express')
 const app = express();
-const session = require('express-session')
+const session = require('cookie-session')
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
 app.use(session({
-    secret : 'secret',
-    resave : false,
-    saveUninitialized : false,
-    cookie : {
-        maxAge : 1000 * 60 * 60 * 24 * 7
-    }
+    name: 'session',
+    keys: ['key1', 'key2'],
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: false,
+    httpOnly: true,
+    signed: true
 }))
 
 app.use(cors({
@@ -242,6 +242,10 @@ app.get('/users', async (req, res) => {
 });
 
 app.post('/users', async (req, res) => {
+    if (!req.session.user) {
+        res.status(401).json({message: "User not connected"});
+        return;
+    }
     api.CreateUser(req.db, req.body.login, req.body.password, req.body.admin).then((user_id) => {
         res.status(200).json({user_id: user_id.insertedId});
     })
