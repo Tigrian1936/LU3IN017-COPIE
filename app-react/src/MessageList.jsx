@@ -14,7 +14,7 @@ function MessageList (props) {
   
   return (<div className="message-list">
     {props.messages.map((message, index) => (
-      <MessageComponent key = {index} id = {_id} setUpToDate = {props.setUpToDate} user_id = {message.user_id} text = {message.text} date = {message.publish_date} is_admin = {message.is_admin} index = {index} switchToProfile = {SwitchToProfile}/>
+      <MessageComponent key = {index} id = {message._id} setUpToDate = {props.setUpToDate} user_id = {message.user_id} text = {message.text} date = {message.publish_date} is_admin = {message.is_admin} index = {index} switchToProfile = {SwitchToProfile}/>
     ))}
   </div>);
 }
