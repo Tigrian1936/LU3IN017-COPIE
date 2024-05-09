@@ -722,6 +722,7 @@ async function SearchMessages(db, options, is_admin) {
 }
 
 async function GetThreadByQuery(db, queryType, count, is_admin) {
+    console.log(is_admin)
     switch (queryType) {
         case "By-most-recent":
             return await GetFirstNThreadsByDate(db, count, is_admin);
