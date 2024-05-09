@@ -197,8 +197,7 @@ app.get('/authentication/logout', async (req, res) => {
         res.status(401).json({message: "User not connected"});
         return;
     }
-    req.session.user = undefined;
-    req.session = null;
+    req.session.user = null;
     res.status(200).json({message: "Logged out"});
 });
 
