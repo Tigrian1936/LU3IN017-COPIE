@@ -11,9 +11,10 @@ function ThreadMessageForm(props) {
     const handeSubmitNewMessage = event => {
         event.preventDefault();
         axios.post(`${GetUrl()}/threads/${props.id}`, {
+            withCredentials: true,
             user_id: user.id,
             text: message
-        }, {withCredentials: true})
+        })
             .then((response) => {
                 if (response.status === 200) {
                     props.setUpToDate(true);

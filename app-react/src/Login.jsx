@@ -16,9 +16,10 @@ function Login(props) {
 
     const handleSubmit = () => {
         axios.post(`${GetUrl()}/authentication/login`, {
+            withCredentials: true,
             login: login,
             password: password
-        }, {withCredentials: true})
+        })
             .then((response) => {
                 if (response.status === 200) {
                     props.logIn({

@@ -10,10 +10,11 @@ function ThreadCreation(props) {
     const user = useContext(UserContext);
     const createThread = () => {
         axios.post(`${GetUrl()}/threads`, {
+            withCredentials: true,
             original_poster_id: user.id,
             title: document.getElementById("title").value,
             is_admin: user.is_admin && document.getElementById("admin").checked
-        }, {withCredentials: true})
+        })
             .then((response) => {
                 if (response.status === 200) {
                     props.setDisplay(DisplayTypes.THREAD)

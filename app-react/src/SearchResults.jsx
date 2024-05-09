@@ -20,12 +20,12 @@ function SearchResults(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const getQueryFromServer = () => {
-        axios.get(`${GetUrl()}/search`, {
+        axios.get(`${GetUrl()}/search`, {withCredentials: true,
             params: {
                 returnType: props.query.returnType,
                 options: props.query.options
             }
-        }, {withCredentials: true})
+        })
             .then((response) => {
                 if (response.status === 200) {
                     setLoading(LoadingStates.LOADED);
