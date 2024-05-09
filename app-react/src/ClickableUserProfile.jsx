@@ -9,7 +9,7 @@ function ClickableUserProfile(props) {
     const ApproveUser = () => {
         axios.post(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
-                console.log(response);
+                props.setUpToDate(true);
             })
             .catch((error) => {
                 console.log(error)
