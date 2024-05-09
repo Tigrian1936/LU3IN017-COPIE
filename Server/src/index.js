@@ -1,14 +1,13 @@
 const express = require('express')
 const app = express();
-const cookieSession = require('cookie-session')
+const session = require('express-session')
 const cors = require('cors');
 const {MongoClient} = require('mongodb');
 const api = require('./api.js');
 app.use(express.json())
 
-app.use(cookieSession({
-    name: 'session',
-    keys: ['Victor', 'Ilian'],
+app.use(session({
+    secret : "SuperProject",
 }))
 
 app.use(cors(
