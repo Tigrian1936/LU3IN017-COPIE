@@ -86,7 +86,7 @@ app.get('/users/:user_id', async (req, res) => {
         return;
     }
     api.GetUser(req.db, req.params.user_id).then((user) => {
-        api.GetUserMessages(req.db, req.params.user_id).then((messages) => {
+        api.GetUserMessages(req.db, req.params.user_id, req.params.is_admin).then((messages) => {
             res.status(200).json({user: user, messages: messages});
         }).catch(reason => {
             res.status(400).json({message: reason.message});

@@ -3,7 +3,8 @@ import MessageList from './MessageList';
 import { useState } from 'react';
 import axios from 'axios';
 import GetUrl from './Url';
-
+import {UserContext} from "./UserContext.jsx";
+import {useContext} from 'react';
 function UserProfile(props){
 
   const LoadingStates = {
@@ -11,7 +12,7 @@ function UserProfile(props){
     LOADED : "Loaded",
     IDLE : "Idle",
   };
-
+  const connectedUser = useContext(UserContext)
   const [messages, setMessages] = useState([]);
   const [user, setUser] = useState(null);
   const [dataLoadingState, setLoadingState] = useState(LoadingStates.IDLE);
@@ -22,7 +23,7 @@ function UserProfile(props){
         setUser({username: "User Deleted", id: -1})
         return;
     }
-    axios.get(`${GetUrl()}/users/${props.id}`, {withCredentials: true})
+    axios.get(`${GetUrl()}/users/${props.id}`, {is_admin : connectedUser.is_admin}, {withCredentials: true})
     .then((response) => {
       setLoadingState(LoadingStates.LOADED);
       setMessages(response.data.messages);

@@ -12,7 +12,7 @@ function ThreadMessageForm(props) {
         event.preventDefault();
         axios.post(`${GetUrl()}/threads/${props.id}`, {
             user_id: user.id,
-            text: message
+            text: message,
         }, {
             withCredentials: true
         })

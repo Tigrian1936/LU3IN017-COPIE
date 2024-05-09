@@ -79,17 +79,24 @@ async function GetFirstNThreadsByDate(db, n) {
 //Add message by user of user_id to the thread of thread id in the database
 async function CreateMessage(db, thread_id, user_id, text) {
     return new Promise((resolve, reject) => {
-        const query = {_id: convertToObjectId(user_id)};
-        const options = {projection: {_id: 0, username: 1}};
-        const user = db.collection('Users').findOne(query, options);
-        const message = {
-            thread_id: convertToObjectId(thread_id),
-            user_id: convertToObjectId(user_id),
-            text: text,
-            publish_date: Date.now()
-        };
-        db.collection('Messages').insertOne(message).then(() => {
-            resolve();
+        const threadQuery = {_id: convertToObjectId(thread_id)};
+        const threadOptions = {projection: {_id: 0, original_poster_id: 1, is_admin: 1}};
+        db.collection('Threads').findOne(threadQuery, threadOptions).then((thread) => {
+            const query = {_id: convertToObjectId(user_id)};
+            const options = {projection: {_id: 0, username: 1}};
+            const user = db.collection('Users').findOne(query, options);
+            const message = {
+                thread_id: convertToObjectId(thread_id),
+                user_id: convertToObjectId(user_id),
+                text: text,
+                publish_date: Date.now(),
+                is_admin: thread.is_admin
+            };
+            db.collection('Messages').insertOne(message).then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(err);
+            });
         }).catch((err) => {
             reject(err);
         });
@@ -122,15 +129,27 @@ async function PromoteUser(db, user_id) {
     });
 }
 
-async function GetUserMessages(db, user_id) {
+async function GetUserMessages(db, user_id, is_admin) {
     return new Promise((resolve, reject) => {
-        const query2 = {user_id: convertToObjectId(user_id)};
-        const options2 = {projection: {_id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1}};
-        const messages = db.collection('Messages').find(query2, options2).toArray();
-        if (messages != null) {
-            resolve(messages);
-        } else {
-            reject("User not found");
+        if(is_admin){
+            const query2 = {user_id: convertToObjectId(user_id)};
+            const options2 = {projection: {_id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1}};
+            const messages = db.collection('Messages').find(query2, options2).toArray();
+            if (messages != null) {
+                resolve(messages);
+            } else {
+                reject("User not found");
+            }   
+        }
+        else{
+            const query2 = {user_id: convertToObjectId(user_id), is_admin: false};
+            const options2 = {projection: {_id: 1, thread_id: 1, user_id: 1, text: 1, publish_date: 1, is_admin: 1}};
+            const messages = db.collection('Messages').find(query2, options2).toArray();
+            if (messages != null) {
+                resolve(messages);
+            } else {
+                reject("User not found");
+            }
         }
     });
 }
@@ -339,7 +358,7 @@ async function SearchThreads(db, options) {
         console.log(messageQueries);
 
         if (userQueries.length > 0) {
-            db.collection('Users').find({$and : userQueries}).toArray().then((users) => {
+            db.collection('Users').find({$and: userQueries}).toArray().then((users) => {
                 users.forEach(user => mainQueries.push({original_poster_id: convertToObjectId(user._id)}));
                 if (messageQueries.length > 0) {
                     db.collection('Messages').find({$and: messageQueries}).toArray().then((messages) => {
@@ -466,7 +485,7 @@ async function SearchUsers(db, options) {
                             });
                             break;
                         default:
-                            reject("Unknown search type");  
+                            reject("Unknown search type");
                             return;
                     }
                     break;
