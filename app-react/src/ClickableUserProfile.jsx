@@ -30,7 +30,7 @@ function ClickableUserProfile(props) {
     const DeleteUser = () => {
         axios.delete(`${GetUrl()}/users/${props.user.id}`, {withCredentials: true})
             .then((response) => {
-                props.setUpToDate(true);
+                if(response.status === 200) props.setUpToDate(true);
             })
             .catch((error) => {
                 console.log(error)
