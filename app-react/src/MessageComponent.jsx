@@ -46,6 +46,10 @@ function MessageComponent (props){
 
   useEffect(() => {
     setLoadingState(LoadingStates.LOADING)
+    console.log("user.is_admin" + user.is_admin)
+    console.log("id" + connectedUser.id === id);
+    console.log("notServer" +  id !== 0);
+    console.log("Tout" + (user.is_admin || id === connectedUser.id) && id !== 0)
     getUserInfosFromDB();}, []
   );
   if(dataLoadingState === LoadingStates.IDLE){
