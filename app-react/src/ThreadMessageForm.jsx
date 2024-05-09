@@ -11,11 +11,10 @@ function ThreadMessageForm(props) {
     const handeSubmitNewMessage = event => {
         event.preventDefault();
         axios.post(`${GetUrl()}/threads/${props.id}`, {
-            withCredentials: true,
-            params : {
-                user_id: user.id,
-                text: message
-            }
+            user_id: user.id,
+            text: message
+        }, {
+            withCredentials: true
         })
             .then((response) => {
                 if (response.status === 200) {
