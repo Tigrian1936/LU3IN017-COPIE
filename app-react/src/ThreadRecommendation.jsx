@@ -36,7 +36,7 @@ function ThreadRecommendation(props) {
             }
         }).catch(err => {
             setLoadingData(LoadingStates.IDLE);
-            console.error(err);
+            console.error(err.response.data.messages);
         });
         return null;
     }
