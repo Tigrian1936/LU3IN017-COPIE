@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import photo from "./assets/react.svg"; 
+import photo from "./assets/image0.jpeg";
 import AuthentificationPage from './AuthentificationPage';
 import ConnectedUserRedirection from './ConnectedUserRedirection';
 import { ThreadRecommendation, ThreadsQueryType } from './ThreadRecommendation';
@@ -8,66 +8,72 @@ import { ForumBody, DisplayTypes } from './ForumBody';
 import { UserContext } from './UserContext';
 import Search from './Search';
 import axios from 'axios';
-import GetUrl from './Url';
 
-function ForumPage (props) {
-  
+function ForumPage(props) {
+
   //Current Connected Profile
   const [user, setConnectedUser] = useState(null)
 
-  const logIn = (profile)=>{
+  const logIn = (profile) => {
     setConnectedUser(profile)
   }
 
-  const logOut = (evt)=>{
-    axios.get(`/authentication/logout`, )
-    .then((response) => {
-      if(response.status === 200){
-        setConnectedUser(null);
-        setDisplay(DisplayTypes.MAIN_PAGE);
-      }
-    }).catch((err)=>{
-      alert(err.response.data.message)
-    });
+  const logOut = (evt) => {
+    axios.get(`/authentication/logout`,)
+      .then((response) => {
+        if (response.status === 200) {
+          setConnectedUser(null);
+          setDisplay(DisplayTypes.MAIN_PAGE);
+        }
+      }).catch((err) => {
+        alert(err.response.data.message)
+      });
   }
 
-  const [currentBodyDisplay,setDisplay] = useState(DisplayTypes.MAIN_PAGE);
+  const [currentBodyDisplay, setDisplay] = useState(DisplayTypes.MAIN_PAGE);
   const [displayDataId, setDisplayDataId] = useState(null);
+  const [upToDate, setUpToDate] = useState(false);
 
-  const createThreadDisplay = (evt)=>{setDisplay(DisplayTypes.CREATE_THREAD)}
+
 
   axios.defaults.baseURL = "http://localhost:5000";
   axios.defaults.withCredentials = true;
 
-  if(user != null){
+  if (user != null) {
     return (
       <div className="forum-page">
-          <UserContext.Provider value={user}>
-              <header>
-                  <div id="logo">
-                      <img src={photo} alt="logo du site" height="75"/>
-                  </div>
-                  <div id="search">
-                    <Search setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
-                  </div>
-                  <div id="connect">
-                      <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
-                                                setDisplayDataId={setDisplayDataId}/>
-                  </div>
-              </header>
-              <div>
-                  <div className="threads-recommandation">
-                      <ThreadRecommendation query={ThreadsQueryType.MOSTRECENT} setDisplay={setDisplay}
-                                            setDisplayDataId={setDisplayDataId}/>
-                      <button onClick={createThreadDisplay}>Create Thread</button>
-                  </div>
-                  <ForumBody display={currentBodyDisplay} setDisplay={setDisplay}
-                             displayDataId={displayDataId} setDisplayDataId={setDisplayDataId}/>
+        <UserContext.Provider value={user}>
+          <header>
+            <div id="logo">
+              <img src={photo} alt="logo du site" height="150" />
+              <div id='forum-title-container'>
+                <label id='forum-title'>SUPER FORUM</label>
               </div>
-          </UserContext.Provider>
+            </div>
+            <div id="search">
+              <Search setDisplay={setDisplay} setDisplayDataId={setDisplayDataId} />
+            </div>
+            <div id="connect">
+              <ConnectedUserRedirection logOut={logOut} setDisplay={setDisplay}
+                setDisplayDataId={setDisplayDataId} />
+            </div>
+          </header>
+          <div id="forum-lower-part">
+            <div id="threads-recommendation">
+              <div id="thread-recommendation-border">
+                <ThreadRecommendation query={ThreadsQueryType.MOSTRECENT} setDisplay={setDisplay}
+                  setDisplayDataId={setDisplayDataId} upToDate={upToDate} setUpToDate={setUpToDate} />
+              </div>
+            </div>
+            <div id="forum-body">
+              <ForumBody display={currentBodyDisplay} setDisplay={setDisplay}
+                displayDataId={displayDataId} setDisplayDataId={setDisplayDataId} upToDate={upToDate} setUpToDate={setUpToDate} />
+            </div>
+          </div>
+        </UserContext.Provider>
       </div>);
   }
-    return (<AuthentificationPage logIn={logIn}/>)
+  return (<AuthentificationPage logIn={logIn} />)
 
 }
 

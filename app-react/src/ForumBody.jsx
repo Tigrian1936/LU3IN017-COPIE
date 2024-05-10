@@ -33,7 +33,7 @@ function ForumBody (props) {
       </div>);
     case DisplayTypes.CREATE_THREAD:
       return(<div className = "thread-creation-page">
-        <ThreadCreation id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
+        <ThreadCreation id = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId} setUpToDate = {props.setUpToDate}/>
       </div>);
     case DisplayTypes.ADMIN:
         return (<div className="admin-page">
@@ -44,7 +44,7 @@ function ForumBody (props) {
             <SearchResults query = {data_id} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>
         </div>);
     case DisplayTypes.MAIN_PAGE: default:
-       return (<ThreadRecommendation query = {ThreadsQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId}/>);
+       return (<ThreadRecommendation query = {ThreadsQueryType.MOSTRECENT} setDisplay = {setDisplay} setDisplayDataId = {setDisplayDataId} upToDate = {props.upToDate} setUpToDate = {props.setUpToDate}/>);
   }
 }
 

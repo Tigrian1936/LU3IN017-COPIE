@@ -1,7 +1,5 @@
 import {useState} from 'react';
-import logo from "./assets/react.svg"
 import axios from 'axios'
-import GetUrl from "./Url.jsx";
 
 function Login(props) {
     const [login, setLogin] = useState("");
@@ -36,11 +34,10 @@ function Login(props) {
     };
 
     return (
-        <div>
+        <div id='login-page'>
             <label htmlFor="login">Login</label><input id="login" onChange={getLogin}/>
             <label htmlFor="mdp">Mot de passe</label><input type="password" id="mdp" onChange={getPassword}/>
             <button type="submit" onClick={handleSubmit}>Log In</button>
-            <button type="reset">Cancel</button>
         </div>
     );
 }

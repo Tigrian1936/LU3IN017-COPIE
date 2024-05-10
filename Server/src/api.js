@@ -34,7 +34,7 @@ async function CreateUser(db, username, password, admin) {
             const user = {
                 username: username,
                 password: password,
-                register_date: Date.now(),
+                register_date: new Date(),
                 is_admin: admin,
                 approved: admin
             };
@@ -135,7 +135,7 @@ async function CreateMessage(db, thread_id, user_id, text) {
                 thread_id: convertToObjectId(thread_id),
                 user_id: convertToObjectId(user_id),
                 text: text,
-                publish_date: Date.now(),
+                publish_date: new Date(),
                 is_admin: thread.is_admin
             };
             db.collection('Messages').insertOne(message).then(() => {
@@ -166,7 +166,7 @@ async function GetUser(db, user_id) {
 async function PatchUserField(db, user_id, field, value) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(user_id) };
-        const update = { $set: { [field] : value } };
+        const update = { $set: { [field]: value } };
         db.collection('Users').updateOne(query, update).then(() => {
             resolve();
         }).catch((err) => {
@@ -203,13 +203,16 @@ async function GetUserMessages(db, user_id, is_admin) {
 
 async function CreateServerMessage(db, thread_id, user_id, title, is_admin) {
     return new Promise((resolve, reject) => {
-        const query = { _id: user_id };
-        const options = { projection: { _id: 0, username: 1 } };
-        const user = db.collection('Users').findOne(query, options);
-        const text = `Thread ${title} created by ${user.username} (${new Date(Date.now()).toLocaleDateString()})`;
-        const message = { thread_id: thread_id, user_id: 0, text: text, publish_date: Date.now(), is_admin: is_admin };
-        db.collection('Messages').insertOne(message).then(() => {
-            resolve();
+        const query = { _id: convertToObjectId(user_id) };
+        const options = { projection: { _id: 1, username: 1 } };
+        db.collection('Users').findOne(query, options).then((user) => {
+            const text = `Thread ${title} created by ${user.username} (${new Date().toLocaleDateString()})`;
+            const message = { thread_id: thread_id, user_id: 0, text: text, publish_date: new Date(), is_admin: is_admin };
+            db.collection('Messages').insertOne(message).then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(err);
+            });
         }).catch((err) => {
             reject(err);
         });
@@ -229,7 +232,7 @@ async function CreateThread(db, original_poster_id, title, is_admin) {
                 original_poster_id: original_poster_id,
                 title: title,
                 is_admin: is_admin,
-                creation_date: Date.now()
+                creation_date: new Date()
             };
             const thread_id = db.collection('Threads').insertOne(thread);
             resolve(thread_id);
@@ -322,17 +325,16 @@ async function SearchThreads(db, options, is_admin) {
         const messageQueries = [];
 
         for (const option of options) {
-            console.log(option);
             switch (option.by) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({ title: { $regex: option.value } });
+                            mainQueries.push({ "title": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             if (option.value.from != null && option.value.up_to != null) {
-                                mainQueries.push({ creation_date: { $gte: option.value.from } });
-                                mainQueries.push({ creation_date: { $lte: option.value.up_to } });
+                                mainQueries.push({ creation_date: { $gte: new Date(option.value.from) } });
+                                mainQueries.push({ creation_date: { $lte: new Date(option.value.up_to) } });
                             }
                             break;
                         default:
@@ -343,13 +345,13 @@ async function SearchThreads(db, options, is_admin) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            userQueries.push({ username: { $regex: option.value } });
+                            userQueries.push({ "username": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             userQueries.push({
                                 register_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -361,13 +363,13 @@ async function SearchThreads(db, options, is_admin) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            messageQueries.push({ text: { $regex: option.value } });
+                            messageQueries.push({ "text": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             messageQueries.push({
                                 publish_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -388,10 +390,18 @@ async function SearchThreads(db, options, is_admin) {
 
         if (userQueries.length > 0) {
             db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
-                users.forEach(user => mainQueries.push({ original_poster_id: convertToObjectId(user._id) }));
+                if (users.length > 0) {
+                    var temp1 = { $or: [] }
+                    users.forEach(user => temp1.$or.push({ original_poster_id: convertToObjectId(user._id) }));
+                    mainQueries.push(temp1)
+                }
                 if (messageQueries.length > 0) {
                     db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
-                        messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.thread_id) }));
+                        if (messages.length > 0) {
+                            var temp2 = { $or: [] }
+                            messages.forEach(message => temp2.$or.push({ _id: convertToObjectId(message.thread_id) }));
+                            mainQueries.push(temp2)
+                        }
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
@@ -425,13 +435,18 @@ async function SearchThreads(db, options, is_admin) {
         } else {
             if (messageQueries.length > 0) {
                 db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
-                    messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.thread_id) }));
+                    if (messages.length > 0) {
+                        var temp3 = { $or: [] }
+                        messages.forEach(message => temp3.$or.push({ _id: convertToObjectId(message.thread_id) }));
+                        mainQueries.push(temp3)
+                    }
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
                     }
                     const query = { $and: mainQueries };
                     const result = db.collection('Threads').find(query).toArray();
+
                     if (result != null) {
                         resolve(result);
                     } else {
@@ -467,13 +482,13 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            threadQueries.push({ title: { $regex: option.value } });
+                            threadQueries.push({ "title": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             threadQueries.push({
                                 creation_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -485,13 +500,13 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({ username: { $regex: option.value } });
+                            mainQueries.push({ "username": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             mainQueries.push({
                                 register_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -503,13 +518,13 @@ async function SearchUsers(db, options) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            messageQueries.push({ text: { $regex: option.value } });
+                            messageQueries.push({ "text": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             messageQueries.push({
                                 publish_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -527,10 +542,18 @@ async function SearchUsers(db, options) {
 
         if (threadQueries.length > 0) {
             db.collection('Threads').find({ $and: threadQueries }).toArray().then((threads) => {
-                threads.forEach(thread => mainQueries.push({ _id: convertToObjectId(thread.original_poster_id) }));
+                if (threads.length > 0) {
+                    var temp1 = { $or: [] }
+                    threads.forEach(thread => temp1.$or.push({ _id: convertToObjectId(thread.original_poster_id) }));
+                    mainQueries.push(temp1);
+                }
                 if (messageQueries.length > 0) {
                     db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
-                        messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.user_id) }));
+                        if (messages.length > 0) {
+                            var temp2 = { $or: [] }
+                            messages.forEach(message => temp2.$or.push({ _id: convertToObjectId(message.user_id) }));
+                            mainQueries.push(temp2)
+                        }
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
@@ -564,7 +587,11 @@ async function SearchUsers(db, options) {
         } else {
             if (messageQueries.length > 0) {
                 db.collection('Messages').find({ $and: messageQueries }).toArray().then((messages) => {
-                    messages.forEach(message => mainQueries.push({ _id: convertToObjectId(message.user_id) }));
+                    if (messages.length > 0) {
+                        var temp3 = { $or: [] }
+                        messages.forEach(message => temp3.$or.push({ _id: convertToObjectId(message.user_id) }));
+                        mainQueries.push(temp3)
+                    }
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
@@ -606,13 +633,13 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.THREAD:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            threadQueries.push({ title: { $regex: option.value } });
+                            threadQueries.push({ "title": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             threadQueries.push({
                                 creation_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -624,13 +651,13 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.USER:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            userQueries.push({ username: { $regex: option.value } });
+                            userQueries.push({ "username": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             userQueries.push({
                                 register_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -642,13 +669,13 @@ async function SearchMessages(db, options, is_admin) {
                 case SearchReturnType.MESSAGE:
                     switch (option.type) {
                         case SearchQueryType.TEXT:
-                            mainQueries.push({ text: { $regex: option.value } });
+                            mainQueries.push({ "text": { $regex: option.value } });
                             break;
                         case SearchQueryType.DATE:
                             mainQueries.push({
                                 publish_date: {
-                                    $gte: option.value.from,
-                                    $lte: option.value.up_to
+                                    $gte: new Date(option.value.from),
+                                    $lte: new Date(option.value.up_to)
                                 }
                             });
                             break;
@@ -669,11 +696,18 @@ async function SearchMessages(db, options, is_admin) {
 
         if (threadQueries.length > 0) {
             db.collection('Threads').find({ $and: threadQueries }).toArray().then((threads) => {
-                threads.forEach(thread => mainQueries.push({ thread_id: convertToObjectId(thread._id) }));
+                if (threads.length > 0) {
+                    var temp1 = { $or: [] }
+                    threads.forEach(thread => temp1.$or.push({ thread_id: convertToObjectId(thread._id) }));
+                    mainQueries.push(temp1);
+                }
                 if (userQueries.length > 0) {
                     db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
-                        users.forEach(user => mainQueries.push({ user_id: convertToObjectId(user._id) }));
-
+                        if (users.length > 0) {
+                            var temp2 = { $or: [] }
+                            users.forEach(user => temp2.$or.push({ user_id: convertToObjectId(user._id) }));
+                            mainQueries.push(temp2);
+                        }
                         if (mainQueries.length === 0) {
                             reject("No queries found");
                             return
@@ -707,7 +741,11 @@ async function SearchMessages(db, options, is_admin) {
         } else {
             if (userQueries.length > 0) {
                 db.collection('Users').find({ $and: userQueries }).toArray().then((users) => {
-                    users.forEach(user => mainQueries.push({ user_id: convertToObjectId(user._id) }));
+                    if (users.length > 0) {
+                        var temp3 = { $or: [] }
+                        users.forEach(user => temp3.$or.push({ user_id: convertToObjectId(user._id) }));
+                        mainQueries.push(temp3);
+                    }
                     if (mainQueries.length === 0) {
                         reject("No queries found");
                         return
@@ -741,7 +779,6 @@ async function SearchMessages(db, options, is_admin) {
 }
 
 async function GetThreadByQuery(db, queryType, count, is_admin) {
-    console.log(is_admin)
     switch (queryType) {
         case "By-most-recent":
             return await GetFirstNThreadsByDate(db, count, is_admin);

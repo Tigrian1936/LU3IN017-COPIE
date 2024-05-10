@@ -10,7 +10,6 @@ function ThreadCreation(props) {
     const user = useContext(UserContext);
     const createThread = () => {
         axios.post(`/threads`, {
-            
             original_poster_id: user.id,
             title: document.getElementById("title").value,
             is_admin: user.is_admin && document.getElementById("thread_admin").checked
@@ -18,8 +17,8 @@ function ThreadCreation(props) {
             .then((response) => {
                 if (response.status === 200) {
                     props.setDisplay(DisplayTypes.THREAD)
-                    console.log(response.data.thread_id);
                     props.setDisplayDataId(response.data.thread_id)
+                    props.setUpToDate(true);
                 } else {
                     console.log(response.message);
                 }
@@ -37,7 +36,7 @@ function ThreadCreation(props) {
     } else {
         return (<div className="thread-creation-fields">
             <label>Titre</label><input id="title"/>
-            <button onClick={createThread}> Create</button>
+            <button className = "button-create" onClick={createThread}> Create</button>
         </div>);
     }
   

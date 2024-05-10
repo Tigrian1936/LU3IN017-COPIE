@@ -44,7 +44,7 @@ function ThreadComponent(props){
 
   const [messages, setMessages] = useState(null);
   if(loading === LoadingStates.LOADING || loading === LoadingStates.IDLE){
-    return (<div>Loading...</div>);
+    return (<label>Loading...</label>);
   }
   return (
   <div className="thread">

@@ -73,9 +73,8 @@ function MessageComponent (props){
     <p>{props.text}</p>
     <div className="message-details">
       <span className="user-id">{user.username}</span> 
-      <span className="message-date">{props.date}</span>  
-      <span className="message-index">{props.index + 1}</span>
       {(connectedUser.is_admin || id === connectedUser.id) && id !== 0 ? <button onClick={evt => deleteMessage()}>Delete</button> : null}
+      <span className="message-date">{new Date(props.date).toLocaleDateString()}</span>  
     </div> 
   </div>);
 }

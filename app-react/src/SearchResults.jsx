@@ -48,14 +48,14 @@ function SearchResults(props) {
         setUpToDate(false)
     }, [props.query, upToDate]);
     if (loading === LoadingStates.LOADING) {
-        return (<div>Loading...</div>);
+        return (<label>Loading...</label>);
     }
     if(loading === LoadingStates.IDLE){
         return (<div>Error while loading data</div>);
     }
     return (
         <div>
-            <h1>Search Results</h1>
+            <label className="forum-body-page-header">Search Results</label>
             {props.query.returnType === SearchReturnType.THREAD ?
                 <ThreadList threads={results} setDisplay={setDisplay} setDisplayDataId={setDisplayDataId} setUpToDate = {setUpToDate}/>
                 : null}

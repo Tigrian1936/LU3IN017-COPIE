@@ -55,8 +55,8 @@ app.use(session({
     secret: 'secret',
     secure: false,
     cookie: {
-        maxAge: 1000 * 60 * 10// 10 minutes
-    },
+        maxAge: 1000 * 60 * 60 * 24// 24 heures
+        },
     store: store,
     saveUninitialized: true
 }))
@@ -167,7 +167,6 @@ app.post('/authentication/login', async (req, res) => {
 
             req.session.save(function (err) {
                 if (err) return next(err)
-                console.log(req.session.user);
                 res.status(200).json(result);
             })
         })

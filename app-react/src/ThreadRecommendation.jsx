@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useContext } from 'react';
 import { UserContext } from './UserContext';
+import { DisplayTypes } from './ForumBody';
 const ThreadsQueryType = {
     MOSTRECENT: "By-most-recent",
 };
@@ -25,6 +26,8 @@ function ThreadRecommendation(props) {
     const setDisplayDataId = props.setDisplayDataId;
     const connectedUser = useContext(UserContext);
 
+    const createThreadDisplay = (evt) => { setDisplay(DisplayTypes.CREATE_THREAD) 
+    console.log("Test")}
     const [upToDate, setUpToDate] = useState(false);
     const getRecommendationsFromDB = () => {
         axios.get(`/threads`,{params: {queryType : queryType, count : displayCount}, }).then((response) => {
@@ -45,15 +48,17 @@ function ThreadRecommendation(props) {
         setLoadingData(LoadingStates.LOADING);
         getRecommendationsFromDB();
         setUpToDate(false);
-    }, [queryType, displayCount, upToDate]);
+        props.setUpToDate(false)
+    }, [queryType, displayCount, upToDate, props.upToDate]);
  
     const [recommendations, setRecommendations] = useState(null);
     if(loadingData === LoadingStates.LOADING || loadingData === LoadingStates.IDLE){
-        return <div>Loading...</div>
+        return <label>Loading...</label>
     }
     return (
         <div className="thread-recommandation-container">
             <ThreadList threads={recommendations} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId} setUpToDate = {setUpToDate}/>
+            <button className='button-create' onClick={createThreadDisplay}>Create Thread</button>
         </div>);
 }
 

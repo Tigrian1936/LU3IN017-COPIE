@@ -30,7 +30,7 @@ function ThreadMessageForm(props) {
         <div>
             <label htmlFor="new-message-label">Nouveau Message</label>
             <input id="new-message" value={message} onChange={evt => setMessage(evt.target.value)}/>
-            <button type="submit" name="publish-button" onClick={handeSubmitNewMessage}>Publier</button>
+            <button className = "button-create" type="submit" name="publish-button" onClick={handeSubmitNewMessage}>Publier</button>
         </div>);
 }
 

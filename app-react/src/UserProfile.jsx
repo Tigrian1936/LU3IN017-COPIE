@@ -60,7 +60,7 @@ function UserProfile(props){
   <div className="user-profile">
   {
     <div className="profile-details">
-        <label className="username">{user.username} </label> 
+        <label className="forum-body-page-header">{user.username} </label> 
         <MessageList messages = {messages} setUpToDate = {setUpToDate} setDisplay = {props.setDisplay} setDisplayDataId = {props.setDisplayDataId}/>
     </div>
 

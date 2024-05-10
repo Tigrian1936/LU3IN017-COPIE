@@ -49,13 +49,14 @@ function AdminUserApproval(props) {
 
     const [usersToApprove, setUsersToApprove] = useState(null);
     if(loadingData === LoadingStates.LOADING){
-        return <div>Loading...</div>
+        return <label>Loading...</label>
     }
     if(loadingData === LoadingStates.IDLE){
         return <div>Error while loading data</div>
     }
     return (
         <div className="thread-recommandation-container">
+            <label className="forum-body-page-header">Non approved users</label>
             <UserList users={usersToApprove} setDisplay={setDisplay} setDisplayDataId = {setDisplayDataId} setUpToDate = {setUpToDate}/>
         </div>);
 }

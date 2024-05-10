@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Signin from "./SignIn"
-import logo from "./assets/react.svg"
 import Login from './Login';
 
 function AuthentificationPage (props) {
