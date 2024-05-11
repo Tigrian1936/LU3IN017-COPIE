@@ -1,19 +1,37 @@
 const { ObjectId } = require('mongodb');
 
-
+/**
+ * Enum representing the types of users query.
+ * @enum {string}
+ */
 const UsersQueryType = {
     NONAPPROVED: "get-non-approved-users",
 };
+
+/**
+ * Enum representing the types of search query.
+ * @enum {string}
+ */
 const SearchQueryType = {
     TEXT: "Text",
     DATE: "Date"
 }
+
+/**
+ * Enum representing the types of search return.
+ * @enum {string}
+ */
 const SearchReturnType = {
     THREAD: "Threads",
     USER: "Users",
     MESSAGE: "Messages",
 };
 
+/**
+ * Converts a string or ObjectId to ObjectId.
+ * @param {string|ObjectId} id - The id to convert.
+ * @returns {ObjectId} The converted ObjectId.
+ */
 function convertToObjectId(id) {
     if (id instanceof ObjectId) {
         return id;
@@ -21,7 +39,14 @@ function convertToObjectId(id) {
     return new ObjectId(id);
 }
 
-//Add a user to the database, used in sign in.
+/**
+ * Add a user to the database, used in sign in.
+ * @param {Object} db - The database object.
+ * @param {string} username - The username of the user.
+ * @param {string} password - The password of the user.
+ * @param {boolean} admin - The admin status of the user.
+ * @returns {Promise<ObjectId>} The id of the created user.
+ */
 async function CreateUser(db, username, password, admin) {
     //Query username for unicity.
     const query = { username: username };
@@ -44,7 +69,12 @@ async function CreateUser(db, username, password, admin) {
     });
 }
 
-//Query the messsages of a thread of given id
+/**
+ * Query the messages of a thread of given id.
+ * @param {Object} db - The database object.
+ * @param {string} thread_id - The id of the thread.
+ * @returns {Promise<Array<Object>>} The messages of the thread.
+ */
 async function GetThreadMessages(db, thread_id) {
     return new Promise((resolve, reject) => {
         const query = { thread_id: convertToObjectId(thread_id) };
@@ -58,7 +88,13 @@ async function GetThreadMessages(db, thread_id) {
     });
 }
 
-//Query threads sorted y date, and return the first n threads of the query
+/**
+ * Query threads sorted by date, and return the first n threads of the query.
+ * @param {Object} db - The database object.
+ * @param {number} n - The number of threads to return.
+ * @param {boolean} is_admin - The admin status of the user.
+ * @returns {Promise<Array<Object>>} The first n threads sorted by date.
+ */
 async function GetFirstNThreadsByDate(db, n, is_admin) {
     return new Promise((resolve, reject) => {
         if (is_admin) {
@@ -92,6 +128,15 @@ async function GetFirstNThreadsByDate(db, n, is_admin) {
     });
 }
 
+/**
+ * Patch a user's field in the database.
+ * @param {Object} db - The database object.
+ * @param {Object} connectedUser - The connected user object.
+ * @param {string} user_id - The id of the user to patch.
+ * @param {string} field - The field to patch.
+ * @param {any} value - The new value of the field.
+ * @returns {Promise<void>} A promise that resolves when the user's field is patched.
+ */
 async function PatchUser(db, connectedUser, user_id, field, value) {
     var reason = "";
     switch (field) {
@@ -122,7 +167,14 @@ async function PatchUser(db, connectedUser, user_id, field, value) {
     });
 }
 
-//Add message by user of user_id to the thread of thread id in the database
+/**
+ * Add a message to the thread in the database.
+ * @param {Object} db - The database object.
+ * @param {string} thread_id - The id of the thread.
+ * @param {string} user_id - The id of the user.
+ * @param {string} text - The text of the message.
+ * @returns {Promise<void>} A promise that resolves when the message is created.
+ */
 async function CreateMessage(db, thread_id, user_id, text) {
     return new Promise((resolve, reject) => {
         const threadQuery = { _id: convertToObjectId(thread_id) };
@@ -150,6 +202,12 @@ async function CreateMessage(db, thread_id, user_id, text) {
 
 }
 
+/**
+ * Get a user from the database.
+ * @param {Object} db - The database object.
+ * @param {string} user_id - The id of the user.
+ * @returns {Promise<Object>} The user object.
+ */
 async function GetUser(db, user_id) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(user_id) };
@@ -163,6 +221,14 @@ async function GetUser(db, user_id) {
     });
 }
 
+/**
+ * Patch a user's field in the database.
+ * @param {Object} db - The database object.
+ * @param {string} user_id - The id of the user.
+ * @param {string} field - The field to patch.
+ * @param {any} value - The new value of the field.
+ * @returns {Promise<void>} A promise that resolves when the user's field is patched.
+ */
 async function PatchUserField(db, user_id, field, value) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(user_id) };
@@ -175,6 +241,13 @@ async function PatchUserField(db, user_id, field, value) {
     });
 }
 
+/**
+ * Get messages of a user from the database.
+ * @param {Object} db - The database object.
+ * @param {string} user_id - The id of the user.
+ * @param {boolean} is_admin - The admin status of the user.
+ * @returns {Promise<Array<Object>>} The messages of the user.
+ */
 async function GetUserMessages(db, user_id, is_admin) {
     return new Promise((resolve, reject) => {
         if (is_admin) {
@@ -200,7 +273,15 @@ async function GetUserMessages(db, user_id, is_admin) {
     });
 }
 
-
+/**
+ * Create a server message in the database.
+ * @param {Object} db - The database object.
+ * @param {string} thread_id - The id of the thread.
+ * @param {string} user_id - The id of the user.
+ * @param {string} title - The title of the thread.
+ * @param {boolean} is_admin - The admin status of the user.
+ * @returns {Promise<void>} A promise that resolves when the server message is created.
+ */
 async function CreateServerMessage(db, thread_id, user_id, title, is_admin) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(user_id) };
@@ -220,6 +301,14 @@ async function CreateServerMessage(db, thread_id, user_id, title, is_admin) {
 
 }
 
+/**
+ * Create a thread in the database.
+ * @param {Object} db - The database object.
+ * @param {string} original_poster_id - The id of the original poster.
+ * @param {string} title - The title of the thread.
+ * @param {boolean} is_admin - The admin status of the user.
+ * @returns {Promise<ObjectId>} The id of the created thread.
+ */
 async function CreateThread(db, original_poster_id, title, is_admin) {
     const query = { original_poster_id: original_poster_id, title: title, is_admin: is_admin }
     const options = { projection: { _id: 1 } };
@@ -240,6 +329,11 @@ async function CreateThread(db, original_poster_id, title, is_admin) {
     });
 }
 
+/**
+ * Get non-approved users from the database.
+ * @param {Object} db - The database object.
+ * @returns {Promise<Array<Object>>} The non-approved users.
+ */
 async function GetNonApprovedUsers(db) {
     return new Promise((resolve, reject) => {
         const query = { approved: false };
@@ -253,6 +347,13 @@ async function GetNonApprovedUsers(db) {
     });
 }
 
+/**
+ * Get users by query type from the database.
+ * @param {Object} db - The database object.
+ * @param {string} queryType - The type of query.
+ * @param {number} count - The number of users to return.
+ * @returns {Promise<Array<Object>>} The users based on the query type.
+ */
 async function GetUsersByQuery(db, queryType, count) {
     switch (queryType) {
         case UsersQueryType.NONAPPROVED:
@@ -262,6 +363,12 @@ async function GetUsersByQuery(db, queryType, count) {
     return null;
 }
 
+/**
+ * Delete a user from the database.
+ * @param {Object} db - The database object.
+ * @param {string} user_id - The id of the user to delete.
+ * @returns {Promise<void>} A promise that resolves when the user is deleted.
+ */
 async function DeleteUser(db, user_id) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(user_id) };
@@ -274,17 +381,31 @@ async function DeleteUser(db, user_id) {
     });
 }
 
+/**
+ * Delete a message from the database.
+ * @param {Object} db - The database object.
+ * @param {string} message_id - The id of the message to delete.
+ * @returns {Promise<void>} A promise that resolves when the message is deleted.
+ */
 async function DeleteMessage(db, message_id) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(message_id) };
         db.collection('Messages').deleteOne(query).then(() => {
             resolve();
-        }).catch(() => {
-            reject();
+        }
+        ).catch(() => {
+            reject()
         });
     });
 }
 
+
+/**
+ * Deletes a thread and its associated messages from the database.
+ * @param {Object} db - The database object.
+ * @param {string} thread_id - The ID of the thread to delete.
+ * @returns {Promise<void>} - A promise that resolves when the thread and messages are deleted successfully.
+ */
 async function DeleteThread(db, thread_id) {
     return new Promise((resolve, reject) => {
         const queryMessages = { thread_id: convertToObjectId(thread_id) };
@@ -304,6 +425,14 @@ async function DeleteThread(db, thread_id) {
 //ça devrait être possible de faire une méthode qui regroupe les 3 méthodes de recherche, ça simplifirait que 
 //d'avoir 3 méthodes similaires (en passant le type d'une option dans le collection de db, on peut rendre les recherches secondaires génériques)
 //Mais bon, j'ai fait comme ça, ça marche aussi, et je me casse pas la tête pour ça (même si c'est plus lourd à maintenir)
+
+/**
+ * Performs a search operation based on the provided query.
+ * @param {Object} db - The database object.
+ * @param {Object} query - The search query.
+ * @param {boolean} is_admin - Indicates whether the user is an admin.
+ * @returns {Promise<Object>} - A promise that resolves to the search result.
+ */
 async function Search(db, query, is_admin) {
     switch (query.returnType) {
         case SearchReturnType.THREAD:
@@ -318,6 +447,14 @@ async function Search(db, query, is_admin) {
 }
 
 
+/**
+ * Searches for threads in the database based on the provided options.
+ * @param {Object} db - The database object.
+ * @param {Array} options - An array of search options.
+ * @param {boolean} is_admin - Indicates whether the user is an admin or not.
+ * @returns {Promise<Array>} - A promise that resolves to an array of matching threads.
+ * @throws {string} - Throws an error if no queries are found or if nothing matches the query.
+ */
 async function SearchThreads(db, options, is_admin) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
@@ -472,6 +609,13 @@ async function SearchThreads(db, options, is_admin) {
     });
 }
 
+/**
+ * Searches for users in the database based on the provided options.
+ * @param {Object} db - The database object.
+ * @param {Array} options - An array of search options.
+ * @returns {Promise<Array>} - A promise that resolves to an array of matching users.
+ * @throws {string} - Throws an error if no queries are found or if nothing matches the query.
+ */
 async function SearchUsers(db, options) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
@@ -623,6 +767,14 @@ async function SearchUsers(db, options) {
     });
 }
 
+/**
+ * Searches for messages in the database based on the provided options.
+ * @param {Object} db - The database object.
+ * @param {Array} options - An array of search options.
+ * @param {boolean} is_admin - Indicates whether the user is an admin.
+ * @returns {Promise<Array>} - A promise that resolves to an array of search results.
+ * @throws {string} - Throws an error if an unknown search type is encountered or if no queries are found.
+ */
 async function SearchMessages(db, options, is_admin) {
     return new Promise((resolve, reject) => {
         const mainQueries = [];
@@ -778,6 +930,14 @@ async function SearchMessages(db, options, is_admin) {
     });
 }
 
+/**
+ * Retrieves threads from the database based on the specified query type.
+ * @param {Object} db - The database object.
+ * @param {string} queryType - The type of query to perform.
+ * @param {number} count - The number of threads to retrieve.
+ * @param {boolean} is_admin - Indicates whether the user is an admin.
+ * @returns {Promise<Array>} - A promise that resolves to an array of threads.
+ */
 async function GetThreadByQuery(db, queryType, count, is_admin) {
     switch (queryType) {
         case "By-most-recent":

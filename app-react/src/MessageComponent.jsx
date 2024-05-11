@@ -2,10 +2,26 @@ import React from 'react';
 import ClickableUserProfile from './ClickableUserProfile';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import GetUrl from './Url';
+
 import {UserContext} from "./UserContext.jsx";
 import {useContext} from 'react';
+/**
+ * Renders a message component.
+ *
+ * @param {Object} props - The component props.
+ * @param {number} props.user_id - The ID of the user associated with the message.
+ * @param {string} props.text - The text content of the message.
+ * @param {string} props.date - The date of the message.
+ * @param {Function} props.switchToProfile - A function to switch to the user's profile.
+ * @param {Function} props.setUpToDate - A function to update the message list.
+ * @returns {JSX.Element} The rendered message component.
+ */
 function MessageComponent (props){
+
+  /**
+   * Represents the loading states of a component.
+   * @enum {string}
+   */
   const LoadingStates = {
     LOADING : "Loading",
     LOADED : "Loaded",
@@ -15,6 +31,15 @@ function MessageComponent (props){
   const [dataLoadingState, setLoadingState] = useState(LoadingStates.IDLE);
   const connectedUser = useContext(UserContext);
   const id = props.user_id;
+
+
+  /**
+   * Fetches user information from the database based on the provided id.
+   * If the id is 0, sets the user as the server and sets the loading state as LOADED.
+   * If the user is not found in the database, sets the user as "User Deleted" with id -1.
+   * Otherwise, sets the user with the retrieved information and sets the loading state as LOADED.
+   * If an error occurs during the API call, handles the error accordingly.
+   */
   const getUserInfosFromDB = () =>{
     if (id === 0) {
       setUser({username: "Server", id: 0})
@@ -58,6 +83,9 @@ function MessageComponent (props){
     </div>)
   }
 
+  /**
+   * Deletes a message in the database
+   */
   function deleteMessage() {
     axios.delete(`/messages/${props.id}`, ).then((response) => {
       if(response.status === 200){

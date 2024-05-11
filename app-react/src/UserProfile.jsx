@@ -2,9 +2,15 @@ import React, { useEffect } from 'react';
 import MessageList from './MessageList';
 import { useState } from 'react';
 import axios from 'axios';
-import GetUrl from './Url';
+
 import {UserContext} from "./UserContext.jsx";
 import {useContext} from 'react';
+/**
+ * Renders the user profile component.
+ *
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} The rendered UserProfile component.
+ */
 function UserProfile(props){
 
   const LoadingStates = {

@@ -9,15 +9,28 @@ import { UserContext } from './UserContext';
 import Search from './Search';
 import axios from 'axios';
 
+/**
+ * Forum page component.
+ * @param {object} props - The component props.
+ * @returns {JSX.Element} - The rendered component.
+ */
 function ForumPage(props) {
 
-  //Current Connected Profile
+  // Current Connected Profile
   const [user, setConnectedUser] = useState(null)
 
+  /**
+   * Log in the user.
+   * @param {object} profile - The user profile.
+   */
   const logIn = (profile) => {
     setConnectedUser(profile)
   }
 
+  /**
+   * Log out the user.
+   * @param {Event} evt - The event object.
+   */
   const logOut = (evt) => {
     axios.get(`/authentication/logout`,)
       .then((response) => {
@@ -33,8 +46,6 @@ function ForumPage(props) {
   const [currentBodyDisplay, setDisplay] = useState(DisplayTypes.MAIN_PAGE);
   const [displayDataId, setDisplayDataId] = useState(null);
   const [upToDate, setUpToDate] = useState(false);
-
-
 
   axios.defaults.baseURL = "http://localhost:5000";
   axios.defaults.withCredentials = true;

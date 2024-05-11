@@ -3,14 +3,25 @@ import {SearchReturnType} from "./SearchReturnType.jsx";
 import {SearchQueryType} from "./SearchQueryType.jsx";
 import {DisplayTypes} from "./ForumBody.jsx";
 
+/**
+ * Component for search functionality.
+ * @param {Object} props - The props object.
+ * @returns {JSX.Element} - The search component.
+ */
 function Search(props) {
     const [returnType, setReturnType] = React.useState(SearchReturnType.THREAD);
     const [options, setOptions] = React.useState([]);
 
+    /**
+     * Adds a new query option.
+     */
     const addQuery = () => {
         setOptions([...options, {by :SearchReturnType.MESSAGE,  type: SearchQueryType.TEXT, value: "" }]);
     }
     
+    /**
+     * Performs the search.
+     */
     const search = () => {
         if(options.length === 0) {
             alert("You must have at least one query");

@@ -1,5 +1,5 @@
 import React from "react";
-import GetUrl from "./Url.jsx";
+
 import axios from 'axios';
 import {SearchReturnType} from "./SearchReturnType.jsx";
 import ThreadList from "./ThreadList.jsx";
@@ -9,6 +9,17 @@ import MessageList from "./MessageList.jsx";
 import {useEffect} from "react";
 import {UserContext} from "./UserContext.jsx";
 import {useContext} from "react";
+
+/**
+ * Component that displays the search results based on the provided query.
+ * @param {Object} props - The component props.
+ * @param {Object} props.query - The search query object.
+ * @param {string} props.query.returnType - The type of search results to display (THREAD, USER, MESSAGE).
+ * @param {Object} props.query.options - Additional options for the search.
+ * @param {Function} props.setDisplay - Function to set the display state in the parent component.
+ * @param {Function} props.setDisplayDataId - Function to set the display data ID in the parent component.
+ * @returns {JSX.Element} The rendered search results component.
+ */
 function SearchResults(props) {
     const LoadingStates = {
         LOADING : "Loading",
@@ -20,6 +31,10 @@ function SearchResults(props) {
     const setDisplay = props.setDisplay;
     const setDisplayDataId = props.setDisplayDataId;
     const connectedUser = useContext(UserContext);
+
+    /**
+     * Fetches the search results from the server based on the query.
+     */
     const getQueryFromServer = () => {
         axios.get(`/search`, {
             params: {
@@ -40,6 +55,7 @@ function SearchResults(props) {
                 alert(error.response.data.messages);
             });
     }
+
     const [upToDate, setUpToDate] = React.useState(false);
     
     useEffect(() => {
@@ -47,12 +63,15 @@ function SearchResults(props) {
         getQueryFromServer();
         setUpToDate(false)
     }, [props.query, upToDate]);
+
     if (loading === LoadingStates.LOADING) {
         return (<label>Loading...</label>);
     }
+
     if(loading === LoadingStates.IDLE){
         return (<div>Error while loading data</div>);
     }
+
     return (
         <div>
             <label className="forum-body-page-header">Search Results</label>
@@ -68,8 +87,6 @@ function SearchResults(props) {
             <button onClick={evt => props.setDisplay("MAIN_PAGE")}>Go back</button>
         </div>
     );
-
-
 }
 
-export default SearchResults
+export default SearchResults;

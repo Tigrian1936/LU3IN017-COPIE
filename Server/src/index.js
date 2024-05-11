@@ -7,7 +7,12 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const api = require('./api.js');
 app.use(express.json())
 
-
+/**
+ * Middleware function to check if a user is connected.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ */
 function isConnected(req, res, next) {
     if (!req.session.user) {
         res.status(401).json({ message: "User not connected" });
@@ -16,6 +21,12 @@ function isConnected(req, res, next) {
     next();
 }
 
+/**
+ * Middleware function to check if a user is an admin.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ */
 function isAdmin(req, res, next) {
     if (!req.session.user.is_admin) {
         res.status(401).json({ message: "User not admin" });
@@ -65,7 +76,9 @@ app.use((req, res, next) => {
     next();
 });
 
-
+/**
+ * Create a new thread.
+ */
 app.post('/threads', isConnected, async (req, res) => {
     api.CreateThread(req.db, req.body.original_poster_id, req.body.title, req.session.user.is_admin && req.body.is_admin).then((thread_id) => {
         api.CreateServerMessage(req.db, thread_id.insertedId, req.body.original_poster_id, req.body.title, req.session.user.is_admin && req.body.is_admin)
@@ -76,6 +89,9 @@ app.post('/threads', isConnected, async (req, res) => {
         });
 });
 
+/**
+ * Get messages of a thread.
+ */
 app.get('/threads/:thread_id', isConnected, async (req, res) => {
     api.GetThreadMessages(req.db, req.params.thread_id).then((messages) => {
         res.status(200).json({ messages: messages });
@@ -84,6 +100,9 @@ app.get('/threads/:thread_id', isConnected, async (req, res) => {
     })
 });
 
+/**
+ * Create a new message in a thread.
+ */
 app.post('/threads/:thread_id', isConnected, async (req, res) => {
     api.CreateMessage(req.db, req.params.thread_id, req.body.user_id, req.body.text).then(() => {
         res.status(200).json({ message: "Message created" });
@@ -92,6 +111,9 @@ app.post('/threads/:thread_id', isConnected, async (req, res) => {
     });
 });
 
+/**
+ * Get user information.
+ */
 app.get('/users/:user_id', isConnected, async (req, res) => {
     if (req.params.user_id === "0") {
         res.status(200).json({ user: { username: "Server", logo: "" }, messages: [] });
@@ -108,6 +130,9 @@ app.get('/users/:user_id', isConnected, async (req, res) => {
     })
 });
 
+/**
+ * Update user information.
+ */
 app.patch('/users/:user_id', isConnected, async (req, res) => {
     api.PatchUser(req.db, req.session.user, req.params.user_id, req.body.field, req.body.value).then(() => {
         res.status(200).json({ message: "User patched" });
@@ -116,7 +141,9 @@ app.patch('/users/:user_id', isConnected, async (req, res) => {
     });
 });
 
-
+/**
+ * Get threads based on query.
+ */
 app.get('/threads', isConnected, async (req, res) => {
     api.GetThreadByQuery(req.db, req.query.queryType, req.query.count, req.session.user.is_admin).then((threads) => {
         res.status(200).json(threads);
@@ -125,6 +152,9 @@ app.get('/threads', isConnected, async (req, res) => {
     })
 });
 
+/**
+ * Delete a user.
+ */
 app.delete('/users/:user_id', isConnected, isAdmin, async (req, res) => {
     api.DeleteUser(req.db, req.params.user_id).then(() => {
         res.status(200).json({ message: "User deleted" });
@@ -133,6 +163,9 @@ app.delete('/users/:user_id', isConnected, isAdmin, async (req, res) => {
     });
 });
 
+/**
+ * Delete a thread.
+ */
 app.delete('/threads/:thread_id', isConnected, async (req, res) => {
     api.DeleteThread(req.db, req.params.thread_id).then(() => {
         res.status(200).json({ message: "Thread deleted" });
@@ -141,6 +174,9 @@ app.delete('/threads/:thread_id', isConnected, async (req, res) => {
     });
 });
 
+/**
+ * Delete a message.
+ */
 app.delete('/messages/:message_id', isConnected, async (req, res) => {
     api.DeleteMessage(req.db, req.params.message_id).then(() => {
         res.status(200).json({ message: "Message deleted" });
@@ -149,6 +185,9 @@ app.delete('/messages/:message_id', isConnected, async (req, res) => {
     });
 });
 
+/**
+ * User login authentication.
+ */
 app.post('/authentication/login', async (req, res) => {
     const collection = req.db.collection('Users');
     const query = { username: req.body.login, password: req.body.password };
@@ -181,11 +220,17 @@ app.post('/authentication/login', async (req, res) => {
     }
 });
 
+/**
+ * User logout.
+ */
 app.get('/authentication/logout', isConnected, async (req, res) => {
     req.session.destroy();
     res.status(200).json({ message: "Logged out" });
 });
 
+/**
+ * Search for threads or users.
+ */
 app.get('/search', isConnected, async (req, res) => {
     api.Search(req.db, req.query, req.session.user.is_admin).then((results) => {
         res.status(200).json(results);
@@ -194,6 +239,9 @@ app.get('/search', isConnected, async (req, res) => {
     })
 });
 
+/**
+ * Get users based on query.
+ */
 app.get('/users', isConnected, async (req, res) => {
     api.GetUsersByQuery(req.db, req.query.queryType).then((users) => {
         res.status(200).json(users);
@@ -202,6 +250,9 @@ app.get('/users', isConnected, async (req, res) => {
     })
 });
 
+/**
+ * Create a new user.
+ */
 app.post('/users', async (req, res) => {
     api.CreateUser(req.db, req.body.login, req.body.password, req.body.admin).then((user_id) => {
         res.status(200).json({ user_id: user_id.insertedId });

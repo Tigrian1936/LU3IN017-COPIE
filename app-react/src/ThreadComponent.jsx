@@ -3,8 +3,17 @@ import MessageList from './MessageList';
 import ThreadMessageForm from './ThreadMessageForm';
 import { useEffect } from 'react';
 import axios from 'axios';
-import GetUrl from './Url';
+
 import { useState } from 'react';
+
+/**
+ * Represents a thread component.
+ * @param {Object} props - The component props.
+ * @param {function} props.setDisplay - The function to set the display.
+ * @param {function} props.setDisplayDataId - The function to set the display data ID.
+ * @param {string} props.id - The ID of the thread.
+ * @returns {JSX.Element} The thread component.
+ */
 function ThreadComponent(props){
 
   const LoadingStates = {
@@ -19,8 +28,11 @@ function ThreadComponent(props){
   const [loading, setLoading] = useState(LoadingStates.IDLE);
   const [upToDate, setUpToDate] = useState(false);
 
+  /**
+   * Fetches messages from the database.
+   * @returns {null} Null.
+   */
   const getMessagesFromDB = () =>{
-    console.log(props.id);
     axios.get(`/threads/${props.id}`, ).then((response) => {
       if (response.status === 200) {
         setLoading(LoadingStates.LOADED);

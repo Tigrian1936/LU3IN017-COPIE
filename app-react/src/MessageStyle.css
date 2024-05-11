@@ -126,6 +126,7 @@ header{
   justify-content: center;
   align-items: center;
   height: 60px;
+  width: 100px;
   padding: 6px;
   margin: 0 auto;
   border: 1px solid #03120E;

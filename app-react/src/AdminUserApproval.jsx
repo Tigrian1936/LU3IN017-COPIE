@@ -1,4 +1,4 @@
-import GetUrl from "./Url.jsx";
+
 import axios from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -6,8 +6,18 @@ import UsersQueryType from "./UsersQueryType.jsx";
 import React, { useContext } from 'react';
 import { UserContext } from './UserContext';
 import UserList from './UserList.jsx';
+
+/**
+ * Component for approving users by an admin.
+ * @param {Object} props - The component props.
+ * @returns {JSX.Element} - The rendered component.
+ */
 function AdminUserApproval(props) {
     
+    /**
+     * Enum for loading states.
+     * @enum {string}
+     */
     const LoadingStates = {
         LOADING: "Loading",
         LOADED: "Loaded",
@@ -24,6 +34,11 @@ function AdminUserApproval(props) {
     const setDisplayDataId = props.setDisplayDataId;
 
     const [upToDate, setUpToDate] = useState(false);
+
+    /**
+     * Fetches non-approved users from the database.
+     * @returns {null} - Returns null if the user is not an admin.
+     */
     const getNonApprovedUsersFromDB = () => {
         if(!user.is_admin){return null;}
         axios.get(`/users`,{params: { queryType : UsersQueryType.NONAPPROVED}, }).then((response) => {
@@ -41,6 +56,7 @@ function AdminUserApproval(props) {
         });
         return null;
     }
+
     useEffect(() => {
         setLoadingData(LoadingStates.LOADING);
         getNonApprovedUsersFromDB();
