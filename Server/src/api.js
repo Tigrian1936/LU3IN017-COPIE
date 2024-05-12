@@ -182,22 +182,26 @@ async function CreateMessage(db, thread_id, user_id, text) {
         db.collection('Threads').findOne(threadQuery, threadOptions).then((thread) => {
             const query = { _id: convertToObjectId(user_id) };
             const options = { projection: { _id: 0, username: 1 } };
-            const user = db.collection('Users').findOne(query, options);
-            const message = {
-                thread_id: convertToObjectId(thread_id),
-                user_id: convertToObjectId(user_id),
-                text: text,
-                publish_date: new Date(),
-                is_admin: thread.is_admin
-            };
-            db.collection('Messages').insertOne(message).then(() => {
-                resolve();
+            db.collection('Users').findOne(query, options).then((user)=>{
+                const message = {
+                    thread_id: convertToObjectId(thread_id),
+                    user_id: convertToObjectId(user_id),
+                    text: text,
+                    publish_date: new Date(),
+                    is_admin: thread.is_admin
+                };
+                db.collection('Messages').insertOne(message).then(() => {
+                    resolve();
+                }).catch((err) => {
+                    reject(err);
+                });
             }).catch((err) => {
                 reject(err);
             });
-        }).catch((err) => {
-            reject(err);
-        });
+            }).catch((err)=>{
+                reject(err);
+            })
+           
     });
 
 }
@@ -391,6 +395,7 @@ async function DeleteMessage(db, message_id) {
     return new Promise((resolve, reject) => {
         const query = { _id: convertToObjectId(message_id) };
         db.collection('Messages').deleteOne(query).then(() => {
+            console.log("Message Deleted")
             resolve();
         }
         ).catch(() => {
