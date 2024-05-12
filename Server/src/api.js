@@ -182,7 +182,7 @@ async function CreateMessage(db, thread_id, user_id, text) {
         db.collection('Threads').findOne(threadQuery, threadOptions).then((thread) => {
             const query = { _id: convertToObjectId(user_id) };
             const options = { projection: { _id: 0, username: 1 } };
-            db.collection('Users').findOne(query, options).then((user)=>{
+            db.collection('Users').findOne(query, options).then((user) => {
                 const message = {
                     thread_id: convertToObjectId(thread_id),
                     user_id: convertToObjectId(user_id),
@@ -198,10 +198,10 @@ async function CreateMessage(db, thread_id, user_id, text) {
             }).catch((err) => {
                 reject(err);
             });
-            }).catch((err)=>{
-                reject(err);
-            })
-           
+        }).catch((err) => {
+            reject(err);
+        })
+
     });
 
 }

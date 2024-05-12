@@ -20,7 +20,6 @@ function isConnected(req, res, next) {
     }
     next();
 }
-
 /**
  * Middleware function to check if a user is an admin.
  * @param {Object} req - The request object.
